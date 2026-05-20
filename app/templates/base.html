@@ -498,34 +498,37 @@
         <div id="confirm-action-modal"
              tabindex="-1"
              aria-hidden="true"
+             aria-labelledby="confirm-action-title"
+             aria-describedby="confirm-action-message"
              class="fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden md:inset-0">
             <div class="relative max-h-full w-full max-w-md p-4">
-                <div class="relative rounded-lg bg-white shadow dark:bg-gray-900">
-                    <div class="p-6 text-center">
-                        <svg class="mx-auto mb-4 h-12 w-12 text-red-600"
-                             aria-hidden="true"
-                             xmlns="http://www.w3.org/2000/svg"
-                             fill="none"
-                             viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                        <h2 id="confirm-action-title"
-                            class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+                <div class="warning-modal-panel">
+                    <div class="warning-modal-accent" aria-hidden="true"></div>
+                    <div class="warning-modal-body">
+                        <div class="warning-modal-icon-shell">
+                            <svg class="warning-modal-icon"
+                                 aria-hidden="true"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                        </div>
+                        <h2 id="confirm-action-title" class="warning-modal-title">
                             Confirm action
                         </h2>
-                        <p id="confirm-action-message"
-                           class="mb-6 text-sm text-gray-600 dark:text-gray-300">
+                        <p id="confirm-action-message" class="warning-modal-message">
                             Are you sure you want to continue?
                         </p>
-                        <div class="flex justify-center gap-3">
+                        <div class="warning-modal-actions">
                             <button data-modal-hide="confirm-action-modal"
                                     type="button"
-                                    class="motion-button rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-700">
+                                    class="motion-button warning-modal-cancel-button">
                                 Cancel
                             </button>
                             <button id="confirm-action-submit"
                                     type="button"
-                                    class="motion-button rounded-lg bg-red-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-red-800 hover:shadow-lg hover:shadow-red-700/30 focus:outline-none focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900">
+                                    class="motion-button warning-modal-confirm-button">
                                 Confirm
                             </button>
                         </div>
