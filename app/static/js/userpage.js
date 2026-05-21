@@ -35,7 +35,17 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 const ticketCountElem = document.getElementById('ticket-count');
                 if (ticketCountElem) {
-                    ticketCountElem.textContent = data.length;
+                    const previousCount = ticketCountElem.textContent.trim();
+                    const nextCount = String(data.length);
+
+                    ticketCountElem.textContent = nextCount;
+
+                    if (previousCount !== nextCount) {
+                        ticketCountElem.classList.remove('motion-safe:animate-flash');
+                        void ticketCountElem.offsetWidth;
+                        ticketCountElem.classList.add('motion-safe:animate-flash');
+                    }
+
                     console.log('Ticket count updated to:', data.length);
                 }
             })

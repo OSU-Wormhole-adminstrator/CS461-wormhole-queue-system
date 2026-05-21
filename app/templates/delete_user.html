@@ -202,12 +202,19 @@
                     "focus:border-red-500",
                     "dark:border-red-500"
                 );
+                input.classList.remove("motion-safe:animate-shake");
+                void input.offsetWidth;
+                input.classList.add("motion-safe:animate-shake");
             };
 
             const clearInvalid = () => {
                 error.classList.add("hidden");
                 input.removeAttribute("aria-invalid");
-                input.classList.remove("border-red-500", "dark:border-red-500");
+                input.classList.remove(
+                    "border-red-500",
+                    "dark:border-red-500",
+                    "motion-safe:animate-shake"
+                );
                 input.classList.add("border-red-300", "dark:border-red-800");
             };
 

@@ -1,7 +1,7 @@
 {# app/templates/macros.html #}
 {% macro render_errors(field) %}
     {% if field.errors %}
-        <div class="mt-1 space-y-1">
+        <div class="mt-1 space-y-1 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-top-1 motion-safe:duration-200">
             {% for error in field.errors %}
                 <p class="text-sm text-red-600 dark:text-red-300">
                     {{ error }}
@@ -64,7 +64,7 @@
     </div>
 {% endmacro %}
 {% macro card(title="", subtitle="", extra_class="") %}
-    <section class="motion-card animate-fade-up rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 {{ extra_class }}">
+    <section class="motion-card motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-3 motion-safe:duration-300 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 {{ extra_class }}">
         {% if title or subtitle %}
             <div class="mb-4">
                 {% if title %}

@@ -29,6 +29,7 @@ module.exports = {
           "theme",
           "variants",
           "responsive",
+          "view-transition",
         ],
       },
     ],

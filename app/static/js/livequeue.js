@@ -69,10 +69,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const emptyRow = document.createElement('tr');
-        emptyRow.className = 'animate-ticket-in';
+        emptyRow.className = 'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 motion-safe:duration-300';
         emptyRow.innerHTML = `
             <td colspan="4" class="px-6 py-12 text-center">
-                <div class="mx-auto max-w-sm animate-fade-up">
+                <div class="mx-auto max-w-sm motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-3 motion-safe:duration-300">
                     <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
                         <svg class="h-6 w-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 21h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1Z"/>
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
         tickets.forEach((ticket, index) => {
             const row = document.createElement('tr');
             row.id = `ticket-${ticket.id}`;
-            row.className = 'interactive-table-row animate-ticket-in hover:bg-orange-50/60 dark:hover:bg-osu-navy-dark/30';
+            row.className = 'interactive-table-row motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-right-3 motion-safe:duration-300 hover:bg-orange-50/60 dark:hover:bg-osu-navy-dark/30';
             row.style.animationDelay = `${index * 55}ms`;
 
             const positionCell = document.createElement('td');
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (ticket.status === 'in_progress') {
                 positionBadge.className =
-                    'inline-flex min-w-28 items-center justify-center rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-purple-800 ring-1 ring-purple-200 dark:bg-osu-lavender/20 dark:text-osu-lavender-dark dark:ring-osu-lavender-dark/30';
+                    'inline-flex min-w-28 items-center justify-center rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-purple-800 ring-1 ring-purple-200 motion-safe:animate-flash dark:bg-osu-lavender/20 dark:text-osu-lavender-dark dark:ring-osu-lavender-dark/30';
                 positionBadge.textContent = 'In progress';
             } else {
                 positionBadge.className =

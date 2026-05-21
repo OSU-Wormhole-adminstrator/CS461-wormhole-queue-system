@@ -447,7 +447,7 @@
                                                             'info': 'border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200'
                                                         }.get(category, 'border-gray-200 bg-white text-gray-800 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200') %}
                             <div id="flash-message-{{ loop.index }}"
-                                 class="animate-flash-drop flex items-start gap-3 rounded-lg border p-4 text-sm shadow-sm {{ alert_class }}"
+                                 class="motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-top-2 motion-safe:duration-300 flex items-start gap-3 rounded-lg border p-4 text-sm shadow-sm {{ alert_class }}"
                                  role="alert">
                                 <svg class="mt-0.5 h-5 w-5 shrink-0"
                                      aria-hidden="true"
@@ -502,8 +502,9 @@
              aria-describedby="confirm-action-message"
              class="fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden md:inset-0">
             <div class="relative max-h-full w-full max-w-md p-4">
-                <div class="warning-modal-panel">
-                    <div class="warning-modal-accent" aria-hidden="true"></div>
+                <div class="warning-modal-panel motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 motion-safe:duration-200">
+                    <div class="warning-modal-accent" aria-hidden="true">
+                    </div>
                     <div class="warning-modal-body">
                         <div class="warning-modal-icon-shell">
                             <svg class="warning-modal-icon"
