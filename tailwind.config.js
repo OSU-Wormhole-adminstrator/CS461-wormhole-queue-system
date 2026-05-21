@@ -52,6 +52,10 @@ module.exports = {
           "0%, 100%": { opacity: "1", transform: "scale(1)" },
           "50%": { opacity: "0.72", transform: "scale(1.03)" },
         },
+        auroraWave: {
+          "0%": { transform: "translateX(-8%) scaleY(1)" },
+          "100%": { transform: "translateX(8%) scaleY(1.15)" },
+        },
         heroShift: {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
@@ -65,6 +69,9 @@ module.exports = {
         wiggle: "wiggle 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both",
         shake: "shakeX 0.42s cubic-bezier(0.36, 0, 0.66, -0.56) both",
         flash: "urgentFlash 1.15s ease-in-out 2 both",
+        "aurora-wave-slow": "auroraWave 10s ease-in-out infinite alternate",
+        "aurora-wave-medium": "auroraWave 14s ease-in-out infinite alternate-reverse",
+        "aurora-wave-fast": "auroraWave 18s ease-in-out infinite alternate",
         "hero-shift": "heroShift 12s ease infinite",
       },
       transitionTimingFunction: {

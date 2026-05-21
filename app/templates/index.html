@@ -5,7 +5,7 @@
 {% block content %}
     <div class="bg-transparent">
         <div>
-            <section class="hero-animated-bg animate-hero-shift overflow-hidden rounded-3xl p-8 text-white shadow-sm sm:p-10">
+            <section class="hero-animated-bg animate-hero-shift overflow-hidden rounded-3xl border border-white/10 p-8 text-white shadow-2xl shadow-osu-navy/20 ring-1 ring-white/10 sm:p-10">
                 <div class="max-w-3xl">
                     <p class="animate-fade-up text-sm font-semibold uppercase tracking-wide text-orange-300">
                         Oregon State Physics
@@ -43,7 +43,7 @@
             {% endif %}
             <section class="reveal-section mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <article class="tilt-card rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm lg:col-span-2">
-                    <p class="text-sm font-semibold uppercase tracking-wide text-osu-orange">
+                    <p class="text-sm font-semibold uppercase tracking-wide text-osu-orange dark:text-orange-400">
                         For Students
                     </p>
                     <h2 class="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -71,7 +71,7 @@
                     </div>
                 </article>
                 <article class="tilt-card rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
-                    <p class="text-sm font-semibold uppercase tracking-wide text-osu-orange">
+                    <p class="text-sm font-semibold uppercase tracking-wide text-osu-orange dark:text-orange-400">
                         For Assistants
                     </p>
                     <h2 class="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -96,7 +96,7 @@
             <section class="reveal-section mt-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
                 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div class="lg:col-span-1">
-                        <p class="text-sm font-semibold uppercase tracking-wide text-osu-orange">
+                        <p class="text-sm font-semibold uppercase tracking-wide text-osu-orange dark:text-orange-400">
                             Schedule
                         </p>
                         <h2 class="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -188,7 +188,7 @@
                                 <a href="{{ url_for('views.download_instruction_file', filename='MS_Teams_Instructions.pdf') }}">MS Teams Instructions</a>.
                             </li>
                             <li>
-                                Join the Wormhole Zoom session <a href="https://oregonstate.zoom.us/j/95601298258">here</a> with password <strong>Wormhole</strong>.
+                                Join the <a href="https://oregonstate.zoom.us/j/95601298258">Wormhole Zoom session</a> with password <strong>Wormhole</strong>.
                             </li>
                         </ol>
                     </div>

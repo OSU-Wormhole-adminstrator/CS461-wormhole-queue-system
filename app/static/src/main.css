@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    background-color: #f0f7ff;
+  }
+
+  html.dark {
+    background-color: #010d1a;
+  }
+
   body {
     min-height: 100vh;
   }
@@ -35,6 +43,39 @@
     background-size: 300% 300%;
   }
 
+  .aurora-bg {
+    transform: translateZ(0);
+  }
+
+  .aurora-band {
+    position: absolute;
+    right: -20%;
+    left: -20%;
+    height: 280px;
+    pointer-events: none;
+    border-radius: 9999px;
+    filter: blur(60px);
+  }
+
+  .dark .aurora-band {
+    mix-blend-mode: screen;
+  }
+
+  .band-teal {
+    top: -90px;
+    background: linear-gradient(90deg, #004d40, #00897b, #26a69a);
+  }
+
+  .band-navy {
+    top: 30px;
+    background: linear-gradient(90deg, #002147, #1565c0, #42a5f5);
+  }
+
+  .band-violet {
+    top: -20px;
+    background: linear-gradient(90deg, #4a148c, #7b1fa2, #ce93d8);
+  }
+
   .motion-button {
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
       box-shadow 0.2s ease,
@@ -62,18 +103,31 @@
   }
 
   .interactive-link-card {
+    background: rgb(255 255 255 / 55%) !important;
+    border: 1px solid rgb(0 0 0 / 8%) !important;
+    backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.2s ease,
       background-color 0.2s ease,
       border-color 0.2s ease;
   }
 
+  .dark .interactive-link-card {
+    background: rgb(255 255 255 / 5%) !important;
+    border-color: rgb(255 255 255 / 9%) !important;
+  }
+
   .interactive-link-card:hover {
+    background: rgb(255 255 255 / 70%) !important;
+    border-color: rgb(215 63 9 / 35%) !important;
     box-shadow: 0 12px 28px rgb(15 23 42 / 10%);
     transform: translateY(-2px);
   }
 
   .dark .interactive-link-card:hover {
+    background: rgb(255 255 255 / 10%) !important;
+    border-color: rgb(162 206 255 / 35%) !important;
     box-shadow: 0 12px 28px rgb(0 0 0 / 24%);
   }
 
@@ -88,14 +142,43 @@
   .tilt-card {
     position: relative;
     overflow: hidden;
+    background: rgb(255 255 255 / 75%) !important;
+    border: 1px solid rgb(0 0 0 / 9%) !important;
+    backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
     transform-style: preserve-3d;
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease;
     will-change: transform;
   }
 
+  .dark .tilt-card {
+    background: rgb(255 255 255 / 6%) !important;
+    border-color: rgb(255 255 255 / 11%) !important;
+  }
+
+  .tilt-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .tilt-card::before {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    content: "";
+    background: linear-gradient(to bottom, rgb(255 255 255 / 10%) 0%, transparent 50%);
+    border-radius: inherit;
+  }
+
+  .dark .tilt-card::before {
+    background: linear-gradient(135deg, rgb(255 255 255 / 7%) 0%, transparent 55%);
+  }
+
   .tilt-card::after {
     position: absolute;
     inset: 0;
+    z-index: 2;
     pointer-events: none;
     content: "";
     background: radial-gradient(
@@ -291,6 +374,24 @@
     box-shadow: 0 0 0 4px rgb(127 29 29);
   }
 
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .tilt-card {
+      background: rgb(255 255 255 / 92%) !important;
+    }
+
+    .dark .tilt-card {
+      background: rgb(15 23 42 / 92%) !important;
+    }
+
+    .interactive-link-card {
+      background: rgb(255 255 255 / 85%) !important;
+    }
+
+    .dark .interactive-link-card {
+      background: rgb(15 23 42 / 75%) !important;
+    }
+  }
+
   @media (width >= 640px) {
     .warning-modal-actions {
       flex-direction: row;
@@ -356,5 +457,9 @@ textarea:focus {
   .motion-card,
   .interactive-link-card {
     transform: none !important;
+  }
+
+  .aurora-band {
+    animation: none !important;
   }
 }

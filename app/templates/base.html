@@ -39,7 +39,18 @@
         <link rel="stylesheet"
               href="{{ url_for('static', filename='dist/main.css') }}">
     </head>
-    <body class="flex min-h-screen flex-col bg-gray-50 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100">
+    <body class="relative flex min-h-screen flex-col overflow-x-hidden bg-[#f0f7ff] text-gray-900 antialiased dark:bg-[#010d1a] dark:text-gray-100">
+        <div class="aurora-bg pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#f0f7ff] dark:bg-[#010d1a]"
+             aria-hidden="true">
+            <div class="aurora-band band-teal motion-safe:animate-aurora-wave-slow opacity-[0.18] dark:opacity-[0.55]">
+            </div>
+            <div class="aurora-band band-navy motion-safe:animate-aurora-wave-medium opacity-[0.14] dark:opacity-[0.45]">
+            </div>
+            <div class="aurora-band band-violet motion-safe:animate-aurora-wave-fast opacity-[0.04] dark:opacity-[0.22]">
+            </div>
+            <div class="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-b from-transparent to-[#f0f7ff] dark:to-[#010d1a]">
+            </div>
+        </div>
         {% set nav_link_base = "nav-link-underline block rounded px-3 py-2 text-sm font-medium transition-colors md:p-0 md:hover:bg-transparent" %}
         {% set nav_link_active = "bg-gray-100 text-osu-orange dark:bg-osu-navy-dark md:bg-transparent md:text-osu-orange md:dark:bg-transparent" %}
         {% set nav_link_inactive = "text-gray-700 hover:bg-gray-100 hover:text-osu-navy dark:text-gray-200 dark:hover:bg-osu-navy-dark dark:hover:text-white md:hover:text-osu-orange" %}
@@ -436,7 +447,7 @@
         {% endif %}
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="mx-auto w-full max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+                <div class="relative z-10 mx-auto w-full max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
                     <div class="space-y-3">
                         {% for category, ms in messages %}
                             {% set alert_class = {
@@ -481,11 +492,11 @@
                 </div>
             {% endif %}
         {% endwith %}
-        <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+        <main class="relative z-10 mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
             {% block content %}
             {% endblock %}
         </main>
-        <footer class="border-t border-gray-200 bg-white dark:border-osu-navy dark:bg-gray-900">
+        <footer class="relative z-10 border-t border-gray-200 bg-white/85 backdrop-blur-md dark:border-white/10 dark:bg-[#010d1a]/85">
             <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-gray-500 dark:text-gray-400 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
                 <p>
                     Oregon State University Physics Wormhole
