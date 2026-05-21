@@ -78,6 +78,38 @@ def test_homepage_preserves_static_links_when_content_is_dynamic(test_client):
     assert b"MS_Teams_Instructions.pdf" in response.data
 
 
+def test_create_ticket_flash_reminds_to_join_zoom(test_client):
+    """Creating a Zoom ticket should include a Zoom join reminder."""
+    response = test_client.post(
+        "/createticket",
+        data={
+            "name": "Test Student",
+            "phClass": "Ph 211",
+            "location": "Zoom",
+        },
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b"Ticket created - thank you! Please join Zoom now." in response.data
+
+
+def test_create_ticket_flash_reminds_to_join_teams(test_client):
+    """Creating a Teams ticket should include a Teams join reminder."""
+    response = test_client.post(
+        "/createticket",
+        data={
+            "name": "Test Student",
+            "phClass": "Ph 211",
+            "location": "Teams",
+        },
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b"Ticket created - thank you! Please join Teams now." in response.data
+
+
 def test_site_content_editor_requires_login(test_client):
     """The website editor should be protected from anonymous users."""
     response = test_client.get("/admin/site-content")

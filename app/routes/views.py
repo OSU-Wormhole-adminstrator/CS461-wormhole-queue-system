@@ -376,7 +376,18 @@ def create_ticket_page():
         except Exception:
             pass
 
-        flash("Ticket created — thank you!", "success")
+        join_target = {
+            "zoom": "Zoom",
+            "teams": "Teams",
+        }.get((form.location.data or "").strip().lower())
+
+        if join_target:
+            flash(
+                f"Ticket created - thank you! Please join {join_target} now.",
+                "success",
+            )
+        else:
+            flash("Ticket created - thank you!", "success")
         return redirect(url_for("views.livequeue"))
 
     return render_template("createticket.html", form=form)
