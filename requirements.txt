@@ -29,4 +29,4 @@ idna==3.11
 dnspython==2.8.0
 tzdata
 eventlet
-boto3==1.35.99
+boto3==1.43.13
