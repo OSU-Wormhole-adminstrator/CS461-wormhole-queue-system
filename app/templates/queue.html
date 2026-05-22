@@ -37,13 +37,16 @@
                 <h3>
                     Open Tickets
                 </h3>
-                <ul>
+                <ul id="open-tickets-list"
+                    data-ticket-url-template="{{ url_for('views.pastticket', username=user.username, tktid=0, next=url_for('views.queue') ) }}">
                     {% for tk in ol %}
                         <li>
                             <a href="{{ url_for('views.pastticket', username=user.username, tktid=tk.id, next=url_for('views.queue') ) }}">
                                 {{ tk.name }} — {{ tk.phClass }} (Table {{ tk.table }})
                             </a>
                         </li>
+                    {% else %}
+                        <li>No open tickets.</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -51,13 +54,16 @@
                 <h3>
                     Current Tickets (In Progress)
                 </h3>
-                <ul>
+                <ul id="current-tickets-list"
+                    data-ticket-url-template="{{ url_for('views.currentticket', tktid=0) }}">
                     {% for tk in cul %}
                         <li>
                             <a href="{{ url_for('views.currentticket', tktid=tk.id) }}">
                                 {{ tk.name }} (Table {{ tk.table }}) - {{ tk.assigned_to }}
                             </a>
                         </li>
+                    {% else %}
+                        <li>No tickets currently in progress.</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -75,6 +81,7 @@
                     {% endfor %}
                 </ul>
             </div>
+            <p id="queue-update-status" class="queue-update-status" aria-live="polite"></p>
             <div class="queue-back-link">
                 <a href="{{ url_for('views.hardware_list') }}">Back to Hardware List</a>
             </div>

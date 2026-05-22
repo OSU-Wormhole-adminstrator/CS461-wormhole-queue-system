@@ -63,6 +63,20 @@ class Config:
     ASSISTANT_SESSION_REJOIN_GRACE_SECONDS = int(
         os.environ.get("ASSISTANT_SESSION_REJOIN_GRACE_SECONDS", "90")
     )
+    ASSISTANT_SESSION_MAX_OPEN_HOURS = int(
+        os.environ.get("ASSISTANT_SESSION_MAX_OPEN_HOURS", "12")
+    )
+
+    # Lightweight protection for the unauthenticated ticket creation API.
+    # This is intentionally dependency-free so it works in the current project,
+    # but a shared limiter such as Redis/Flask-Limiter is still better if the
+    # app is ever scaled beyond one process.
+    TICKET_CREATE_RATE_LIMIT_COUNT = int(
+        os.environ.get("TICKET_CREATE_RATE_LIMIT_COUNT", "60")
+    )
+    TICKET_CREATE_RATE_LIMIT_WINDOW_SECONDS = int(
+        os.environ.get("TICKET_CREATE_RATE_LIMIT_WINDOW_SECONDS", "60")
+    )
 
     # In production (Elastic Beanstalk), DATABASE_URL must be set as an
     # environment variable pointing to an RDS instance.

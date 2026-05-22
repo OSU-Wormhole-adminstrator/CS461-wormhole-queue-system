@@ -32,10 +32,13 @@
                     <a href="{{ url_for('views.livequeue') }}">Live Queue</a>
                     <a href="{{ url_for('views.wiki') }}">Wiki</a>
                     <div class="dropdown">
-                        <button class="dropbtn">
+                        <button class="dropbtn"
+                                type="button"
+                                aria-expanded="false"
+                                aria-controls="user-dropdown-menu">
                             User
                         </button>
-                        <div class="dropdown-content">
+                        <div class="dropdown-content" id="user-dropdown-menu">
                             {% if current_user.is_anonymous %}
                                 <a href="{{ url_for('views.assistant_login') }}">Log In</a>
                             {% else %}
@@ -74,7 +77,8 @@
         {% endwith %}
         {% block content %}
         {% endblock %}
+        <script src="{{ url_for('static', filename='js/dropdown.js') }}"></script>
+        {% block body_scripts %}
+        {% endblock %}
     </body>
-    {% block body_scripts %}
-    {% endblock %}
 </html>

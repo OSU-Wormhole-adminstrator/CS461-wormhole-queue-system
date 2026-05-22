@@ -16,9 +16,12 @@ from flask import current_app, request, session
 
 from app import db, socketio
 from app.models import AssistantSession, IdleEvent, Ticket, User
+from app.queue_maintenance import close_stale_assistant_sessions
 from app.time_utils import ensure_aware_utc, format_pacific, serialize_datetime
 
 connected_assistants: dict[str, dict[str, int]] = {}
+connected_admin_sids: set[str] = set()
+_last_roster_signature: tuple[tuple[int, str, bool, bool], ...] | None = None
 _monitoring_task_started = False
 
 
@@ -49,6 +52,11 @@ def _session_user() -> User | None:
 def _connected_user_ids() -> set[int]:
     """Return user IDs for assistants currently connected to /assistant."""
     return {entry["user_id"] for entry in connected_assistants.values()}
+
+
+def _connected_session_ids() -> set[int]:
+    """Return AssistantSession ids currently owned by live sockets."""
+    return {entry["session_id"] for entry in connected_assistants.values()}
 
 
 def _session_id_for_connected_user(user_id: int) -> int | None:
@@ -129,7 +137,7 @@ def handle_assistant_connect(auth=None):
         "user_id": user.id,
         "session_id": session_id,
     }
-    socketio.emit("roster_update", build_roster(), namespace="/admin")
+    emit_roster_update_if_changed()
     return None
 
 
@@ -154,7 +162,7 @@ def handle_assistant_disconnect():
             session_record.duration_minutes = max(0, int(duration_seconds // 60))
             db.session.commit()
 
-    socketio.emit("roster_update", build_roster(), namespace="/admin")
+    emit_roster_update_if_changed()
 
 
 @socketio.on("connect", namespace="/admin")
@@ -163,8 +171,16 @@ def handle_admin_connect(auth=None):
     user = _session_user()
     if user is None or not user.is_admin:
         return False
-    socketio.emit("roster_update", build_roster(), room=request.sid, namespace="/admin")
+
+    connected_admin_sids.add(request.sid)
+    emit_roster_update_if_changed(room=request.sid)
     return None
+
+
+@socketio.on("disconnect", namespace="/admin")
+def handle_admin_disconnect():
+    """Stop doing admin-only roster work once the admin tab is gone."""
+    connected_admin_sids.discard(request.sid)
 
 
 def _oldest_live_ticket_wait_minutes(now: datetime) -> int | None:
@@ -226,6 +242,48 @@ def build_roster() -> list[dict[str, Any]]:
     return roster
 
 
+def _roster_signature(
+    roster: list[dict[str, Any]],
+) -> tuple[tuple[int, str, bool, bool], ...]:
+    """Return the fields that matter for deciding whether to re-emit the roster."""
+    return tuple(
+        (
+            int(row["user_id"]),
+            str(row["status"]),
+            bool(row["connected"]),
+            bool(row["has_active_ticket"]),
+        )
+        for row in roster
+    )
+
+
+def emit_roster_update_if_changed(*, force: bool = False, room: str | None = None) -> None:
+    """
+    Emit admin roster updates only when useful.
+
+    Ticket events can be very frequent. If no admin tabs are connected, skip the
+    roster DB work entirely. If admins are connected, emit only when the roster's
+    status-bearing fields changed. A room-targeted emit is used for a newly
+    connected admin tab and always sends the current snapshot to that tab.
+    """
+    global _last_roster_signature
+
+    if room is None and not connected_admin_sids:
+        return
+
+    roster = build_roster()
+    signature = _roster_signature(roster)
+
+    if room is not None:
+        socketio.emit("roster_update", roster, room=room, namespace="/admin")
+        _last_roster_signature = signature
+        return
+
+    if force or signature != _last_roster_signature:
+        socketio.emit("roster_update", roster, namespace="/admin")
+        _last_roster_signature = signature
+
+
 def _idle_connected_assistant_ids() -> list[int]:
     """Return connected assistant IDs that do not have an in-progress ticket."""
     busy_wa_ids = _busy_wa_ids()
@@ -263,6 +321,11 @@ def _write_idle_events(
 
 def run_idle_check_once() -> None:
     """Run one monitoring cycle. Kept separate so tests can call it directly."""
+    close_stale_assistant_sessions(
+        max_open_hours=current_app.config.get("ASSISTANT_SESSION_MAX_OPEN_HOURS", 12),
+        exclude_session_ids=_connected_session_ids(),
+    )
+
     now = datetime.now(timezone.utc)
     grace = current_app.config["IDLE_GRACE_MINUTES"]
     stale_cutoff = now - timedelta(minutes=grace)
@@ -273,8 +336,7 @@ def run_idle_check_once() -> None:
     ).count()
 
     if stale_ticket_count == 0:
-        if connected_assistants:
-            socketio.emit("roster_update", build_roster(), namespace="/admin")
+        emit_roster_update_if_changed()
         return
 
     if not connected_assistants:
@@ -282,7 +344,7 @@ def run_idle_check_once() -> None:
 
     idle_user_ids = _idle_connected_assistant_ids()
     if not idle_user_ids:
-        socketio.emit("roster_update", build_roster(), namespace="/admin")
+        emit_roster_update_if_changed()
         return
 
     oldest_wait_minutes = _oldest_live_ticket_wait_minutes(now)
@@ -292,7 +354,7 @@ def run_idle_check_once() -> None:
         oldest_wait_minutes=oldest_wait_minutes,
         now=now,
     )
-    socketio.emit("roster_update", build_roster(), namespace="/admin")
+    emit_roster_update_if_changed()
 
     critical_wait = current_app.config["CRITICAL_WAIT_MINUTES"]
     critical_count_threshold = current_app.config["CRITICAL_TICKET_COUNT"]
@@ -303,7 +365,11 @@ def run_idle_check_once() -> None:
     ).count()
 
     all_connected_are_idle = len(idle_user_ids) == len(_connected_user_ids())
-    if critical_count >= critical_count_threshold and all_connected_are_idle:
+    if (
+        connected_admin_sids
+        and critical_count >= critical_count_threshold
+        and all_connected_are_idle
+    ):
         socketio.emit(
             "critical_alert",
             {
@@ -346,7 +412,7 @@ def broadcast_ticket_update(ticket_id):
     Called when a new ticket is created or updated.
     """
     try:
-        t = Ticket.query.get(ticket_id)
+        t = db.session.get(Ticket, ticket_id)
         if t:
             ticket_data = {
                 "id": t.id,
@@ -360,7 +426,7 @@ def broadcast_ticket_update(ticket_id):
                 "status": t.status,
             }
             socketio.emit("new_ticket", ticket_data, namespace="/queue")
-            socketio.emit("roster_update", build_roster(), namespace="/admin")
+            emit_roster_update_if_changed()
             print(f"Broadcasted ticket update for ticket ID {ticket_id}")
     except Exception as e:
         print(f"Error broadcasting ticket update: {e}")
@@ -372,4 +438,4 @@ def broadcast_queue_refresh():
     Triggers the client to refetch the queue.
     """
     socketio.emit("queue_refresh", {}, namespace="/queue")
-    socketio.emit("roster_update", build_roster(), namespace="/admin")
+    emit_roster_update_if_changed()

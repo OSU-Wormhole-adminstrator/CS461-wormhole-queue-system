@@ -21,7 +21,7 @@ from flask import (
 )
 
 # Explicit imports for SQLAlchemy operators to ensure compatibility
-from sqlalchemy import text
+from sqlalchemy import text, update
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -653,37 +653,68 @@ def userpage(username):
 @views_bp.route("/getnewticket/<username>")
 @login_required
 def getnewticket(username):
-    # Assign the next available live ticket to the given user and redirect
+    """Atomically claim the next available ticket for the signed-in WA."""
+    # Assign the next available live ticket to the given user and redirect.
+    # The username remains in the URL for the existing UI, but non-admin users
+    # may only claim tickets for themselves.
     u = User.query.filter_by(username=username).first()
     if not u:
         abort(404)
 
-    # Get IDs of tickets already skipped by the current user
+    current_user_obj = db.session.get(User, session["user_id"])
+    if not current_user_obj or (current_user_obj.id != u.id and not current_user_obj.is_admin):
+        abort(403)
+
     skipped_subquery = (
         db.session.query(Skipped.tkt_id)
-        .filter(Skipped.wa_id == session["user_id"])
+        .filter(Skipped.wa_id == u.id)
         .subquery()
         .select()
     )
 
-    # Get the live ticket which the current user has not skipped that is first in line
-    t = (
+    candidates = (
         Ticket.query.filter_by(status="live")
+        .filter(Ticket.wa_id.is_(None))
         .filter(Ticket.id.notin_(skipped_subquery))
-        .first()
+        .order_by(Ticket.created_at.asc(), Ticket.id.asc())
+        .limit(10)
+        .all()
     )
 
-    if not t:
-        # no tickets available; redirect back to user page
+    if not candidates:
         flash("No available tickets to claim.", "info")
         return redirect(url_for("views.userpage", username=username))
 
-    t.assign_to(u)
+    claimed_ticket_id = None
+    for candidate in candidates:
+        # Conditional UPDATE prevents two WAs from claiming the same ticket even
+        # if both clicked at the same time. This works on SQLite and Postgres,
+        # unlike SELECT ... FOR UPDATE on SQLite.
+        result = db.session.execute(
+            update(Ticket)
+            .where(
+                Ticket.id == candidate.id,
+                Ticket.status == "live",
+                Ticket.wa_id.is_(None),
+            )
+            .values(wa_id=u.id, status="in_progress")
+        )
+        if result.rowcount == 1:
+            claimed_ticket_id = candidate.id
+            break
+
+    if claimed_ticket_id is None:
+        db.session.rollback()
+        flash("That ticket was just claimed by someone else. Please try again.", "info")
+        return redirect(url_for("views.userpage", username=username))
+
+    db.session.commit()
+    t = db.session.get(Ticket, claimed_ticket_id)
 
     try:
         from app.routes.queue_events import broadcast_ticket_update
 
-        broadcast_ticket_update(t.id)
+        broadcast_ticket_update(claimed_ticket_id)
     except Exception:
         pass
 

@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     socket.on('new_ticket', function(data) {
-        console.log('New ticket event (userpage):', data);
+        console.log('Ticket update event (userpage):', data);
         updateTicketCount();
     });
 
-    socket.on('queue_refresh', function(data) {
+    socket.on('queue_refresh', function() {
         console.log('Queue refresh event (userpage)');
-        refreshUserPage();
+        updateTicketCount();
     });
 
     socket.on('disconnect', function() {
@@ -33,16 +33,13 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Assistant presence socket rejected or unavailable:', error.message);
     });
 
-    function refreshUserPage() {
-        location.reload();
-    }
-
     function updateTicketCount() {
         console.log('fetching ticket count...');
-        fetch('/api/unskippedtickets')
+        fetch('/api/unskippedtickets', { headers: { 'Accept': 'application/json' } })
             .then(response => {
-            return response.json();
-        })
+                if (!response.ok) throw new Error(`Ticket count API returned ${response.status}`);
+                return response.json();
+            })
             .then(data => {
                 const ticketCountElem = document.getElementById('ticket-count');
                 if (ticketCountElem) {
@@ -50,6 +47,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Ticket count updated to:', data.length);
                 }
             })
-            .catch(error => console.error('Error fetching ticket count:', error));
+            .catch(error => console.error('Error fetching tickets:', error));
     }
 });

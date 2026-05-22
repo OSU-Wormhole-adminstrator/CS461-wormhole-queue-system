@@ -9,33 +9,37 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     socket.on('new_ticket', function(data) {
-        console.log('New ticket created:', data);
+        console.log('Ticket update received:', data);
         updateTicketTable();
     });
 
-    socket.on('queue_refresh', function(data) {
+    socket.on('queue_refresh', function() {
         console.log('Queue refresh event received');
-        refreshLiveQueue();
+        updateTicketTable();
     });
 
     socket.on('disconnect', function() {
         console.log('Disconnected from queue namespace');
     });
 
-    function refreshLiveQueue() {
-        location.reload();
+    function setCellText(row, value) {
+        const cell = document.createElement('td');
+        cell.textContent = value ?? '';
+        row.appendChild(cell);
     }
 
     function updateTicketTable() {
-        fetch('/api/livequeuetickets')
+        fetch('/api/livequeuetickets', { headers: { 'Accept': 'application/json' } })
             .then(response => {
                 console.log('Response status', response.status);
+                if (!response.ok) throw new Error(`Live queue API returned ${response.status}`);
                 return response.json();
             })
             .then(tickets => {
                 console.log('API tickets:', tickets);
 
                 const ticketTableBody = document.querySelector('#tickets tbody');
+                if (!ticketTableBody) return;
                 ticketTableBody.innerHTML = '';
 
                 tickets.forEach((ticket, index) => {
@@ -46,18 +50,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         ? 'IN PROGRESS'
                         : index + 1;
 
-                    row.innerHTML = `
-                        <td>${positionOrStatus}</td>
-                        <td>${ticket.student_name}</td>
-                        <td>${ticket.table}</td>
-                        <td>${ticket.physics_course}</td>
-                    `;
+                    setCellText(row, positionOrStatus);
+                    setCellText(row, ticket.student_name);
+                    setCellText(row, ticket.table);
+                    setCellText(row, ticket.physics_course);
 
                     ticketTableBody.appendChild(row);
                 });
 
-                document.getElementById('refresh-time').textContent =
-                    new Date().toLocaleTimeString();
+                const refreshTime = document.getElementById('refresh-time');
+                if (refreshTime) {
+                    refreshTime.textContent = new Date().toLocaleTimeString();
+                }
             })
             .catch(error => console.error('Error fetching tickets:', error));
     }
