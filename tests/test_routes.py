@@ -7,7 +7,7 @@ from uuid import uuid4
 from zoneinfo import ZoneInfo
 
 from app import db
-from app.models import SiteContent, Ticket, User
+from app.models import Box, SiteContent, Ticket, User
 from app.time_utils import pacific_day_bounds_to_utc
 
 
@@ -34,6 +34,29 @@ def test_health_check_route(test_client):
     response = test_client.get("/health")
     assert response.status_code == 200
     assert response.get_json() == {"message": "Wormhole Queue System API is running"}
+
+
+def test_hardware_api_creates_and_updates_box(test_client):
+    """Test the hardware API endpoint creates a new Box entry from JSON data."""
+    response = test_client.post(
+        "/api/hardware",
+        json={"name": "TestBox", "status": "Green", "time": "2026-05-21T12:00:00Z"},
+    )
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["success"] is True
+    assert data["box"]["name"] == "TestBox"
+    assert data["box"]["status"] == "Green"
+
+    box = Box.query.filter_by(name="TestBox").one_or_none()
+    assert box is not None
+    assert box.status == "Green"
+
+
+def test_hardware_list_requires_login(test_client):
+    """Verify the hardware list page is protected and requires login."""
+    response = test_client.get("/hardware_list")
+    assert response.status_code == 401
 
 
 def test_404_for_unknown_route(test_client):
@@ -76,6 +99,38 @@ def test_homepage_preserves_static_links_when_content_is_dynamic(test_client):
     assert b"/livequeue" in response.data
     assert b"Wormhole_Student_Instructions.pdf" in response.data
     assert b"MS_Teams_Instructions.pdf" in response.data
+
+
+def test_create_ticket_flash_reminds_to_join_zoom(test_client):
+    """Creating a Zoom ticket should include a Zoom join reminder."""
+    response = test_client.post(
+        "/createticket",
+        data={
+            "name": "Test Student",
+            "phClass": "Ph 211",
+            "location": "Zoom",
+        },
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b"Ticket created - thank you! Please join Zoom now." in response.data
+
+
+def test_create_ticket_flash_reminds_to_join_teams(test_client):
+    """Creating a Teams ticket should include a Teams join reminder."""
+    response = test_client.post(
+        "/createticket",
+        data={
+            "name": "Test Student",
+            "phClass": "Ph 211",
+            "location": "Teams",
+        },
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b"Ticket created - thank you! Please join Teams now." in response.data
 
 
 def test_site_content_editor_requires_login(test_client):

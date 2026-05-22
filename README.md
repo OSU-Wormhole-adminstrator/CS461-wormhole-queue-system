@@ -71,23 +71,49 @@ Students can use the live site to submit a help request or view queue activity. 
 
 ### Local Development
 
-To run the project locally:
+To run the project locally on macOS/Linux:
 
 ```bash
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 flask db upgrade
-python run.py
+flask run
 ```
 
-On Windows PowerShell, activate the virtual environment with:
+On Windows PowerShell:
 
 ```powershell
+python -m venv venv
 .\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+flask db upgrade
+flask run
 ```
 
-For production deployment, configure environment variables such as `SECRET_KEY`, `DATABASE_URL`, and HTTPS-related settings. See the deployment documentation in `deploy/` for more details.
+The local development server uses plain HTTP by default:
+
+```text
+http://127.0.0.1:5000
+```
+
+If a browser keeps trying HTTPS after a previous redirect, clear the browser's cached site data for `127.0.0.1` / `localhost`, open an incognito window, or run Flask on a different port, such as `flask run --port 5001`.
+
+For production deployment, configure environment variables such as `APP_ENV=production`, `SECRET_KEY`, `DATABASE_URL`, `FORCE_HTTPS=1`, `ENABLE_HSTS=1`, `SESSION_COOKIE_SECURE=1`, and `PREFERRED_URL_SCHEME=https`. See the deployment documentation in `deploy/` for more details.
+
+### Forgot-Password Email Configuration
+
+Password reset emails are sent through Amazon SES. The production sender should use the verified `physics.oregonstate.edu` SES domain identity:
+
+```env
+SES_REGION=us-west-2
+MAIL_DEFAULT_SENDER="Wormhole Physics <no-reply@physics.oregonstate.edu>"
+MAIL_REPLY_TO="Wormhole Physics <Wormhole.Physics@oregonstate.edu>"
+EMAIL_ENABLED=1
+RESET_PASSWORD_TOKEN_MAX_AGE=3600
+```
+
+`MAIL_DEFAULT_SENDER` is the automated transactional sender. `MAIL_REPLY_TO` routes human replies to the monitored Wormhole inbox. Do not commit AWS access keys or any real secret values. On AWS, credentials should come from the instance role, Elastic Beanstalk environment, Parameter Store, Secrets Manager, or another approved deployment mechanism.
 
 ## System Requirements
 

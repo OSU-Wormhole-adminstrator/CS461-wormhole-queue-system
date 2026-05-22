@@ -48,6 +48,7 @@ def create_app(testing=False):
         app.config["FORCE_HTTPS"] = False
         app.config["ENABLE_HSTS"] = False
         app.config["PREFERRED_URL_SCHEME"] = "http"
+        app.config["EMAIL_ENABLED"] = False
     elif (
         os.environ.get("REQUIRE_DATABASE_URL") == "1"
         and not os.environ.get("DATABASE_URL")

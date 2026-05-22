@@ -1,4 +1,5 @@
 # app/routes/auth.py
+import sqlalchemy as sa
 from flask import (
     Blueprint,
     current_app,
@@ -11,6 +12,8 @@ from flask import (
     url_for,
 )
 
+from app import db
+from app.email import send_password_reset_email
 from app.forms import ResetPasswordForm, ResetPasswordRequestForm
 from app.models import User
 
@@ -76,9 +79,18 @@ def reset_password_request():
     form = ResetPasswordRequestForm()
     if request.method == "POST":
         if form.validate_on_submit():
-            # Variable assignment removed to satisfy Ruff F841 (unused variable)
-            # Actual email sending logic would be implemented here
-            current_app.logger.info(f"Password reset requested for: {form.email.data}")
+            email = form.email.data.strip().lower()
+            user = User.query.filter(sa.func.lower(User.email) == email).first()
+            current_app.logger.info("Password reset requested for: %s", email)
+
+            if user and user.is_active:
+                try:
+                    send_password_reset_email(user)
+                except Exception:
+                    current_app.logger.exception(
+                        "Password reset email failed for user id %s", user.id
+                    )
+
         flash(
             "If an account with that email exists, check your inbox for reset instructions.",
             "info",
@@ -92,13 +104,19 @@ def reset_password_request():
 # -------------------------------
 @auth_bp.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
-    # Log the token to satisfy the "unused variable" check
-    current_app.logger.info(f"Password reset page accessed with token: {token}")
+    user = User.verify_reset_password_token(token)
+    if user is None or not user.is_active:
+        flash("That password reset link is invalid or has expired.", "error")
+        return redirect(url_for("auth.reset_password_request"))
+
     form = ResetPasswordForm()
     if request.method == "POST":
         if not form.validate_on_submit():
             flash("Passwords do not match or are invalid.", "error")
             return render_template("reset_password.html", form=form)
+
+        user.set_password(form.password.data)
+        db.session.commit()
         flash("Your password has been reset. You may now sign in.", "success")
         return redirect(url_for("views.assistant_login"))
     return render_template("reset_password.html", form=form)
