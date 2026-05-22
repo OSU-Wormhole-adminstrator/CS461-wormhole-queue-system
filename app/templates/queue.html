@@ -41,7 +41,7 @@
                     {% for tk in ol %}
                         <li>
                             <a href="{{ url_for('views.pastticket', username=user.username, tktid=tk.id, next=url_for('views.queue') ) }}">
-                                {{ tk.name }} — {{ tk.phClass }} (Table {{ tk.table }})
+                                {{ tk.id }} - {{ tk.name }} — {{ tk.phClass }} (Table {{ tk.table }})
                             </a>
                         </li>
                     {% endfor %}
@@ -55,7 +55,7 @@
                     {% for tk in cul %}
                         <li>
                             <a href="{{ url_for('views.currentticket', tktid=tk.id) }}">
-                                {{ tk.name }} (Table {{ tk.table }}) - {{ tk.assigned_to }}
+                                {{ tk.id }} - {{ tk.name }} (Table {{ tk.table }}) - {{ tk.assigned_to }}
                             </a>
                         </li>
                     {% endfor %}
