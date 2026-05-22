@@ -17,7 +17,7 @@
                         {% for box in boxes %}
                             <tr data-box-name="{{ box.name }}">
                                 <td style="padding:8px; text-align:center;">{{ box.name }}</td>
-                                <td style="padding:8px; text-align:center; background-color: {% if box.status == 'Green' %}green{% elif box.status == 'Yellow' %}yellow{% elif box.status == 'Orange' %}orange{% else %}red{% endif %};">
+                                <td style="padding:8px; text-align:center; background-color: {%- if box.status == 'Green' -%}green{%- elif box.status == 'Yellow' -%}yellow{%- elif box.status == 'Orange' -%}orange{%- else -%}red{%- endif -%};"></td>
                                     {{ box.status }}
                                 </td>
                                 <td style="padding:8px; text-align:center;">{{ box.last_seen_local }}</td>
