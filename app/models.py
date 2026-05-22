@@ -182,6 +182,54 @@ class Ticket(Base):
         db.session.commit()
 
 
+class AssistantSession(Base):
+    """Tracks when a Wormhole assistant is connected to the assistant UI."""
+
+    __tablename__ = "assistant_sessions"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        sa.ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    session_start: Mapped[datetime] = mapped_column(
+        index=True, default=lambda: datetime.now(timezone.utc)
+    )
+    session_end: Mapped[Optional[datetime]] = mapped_column(default=None)
+    duration_minutes: Mapped[Optional[int]] = mapped_column(default=None)
+
+    user: Mapped["User"] = orm.relationship("User")
+
+    def __repr__(self) -> str:
+        return (
+            f"<AssistantSession(id={self.id}, user_id={self.user_id}, "
+            f"session_start={self.session_start})>"
+        )
+
+
+class IdleEvent(Base):
+    """Exception log entry for connected assistants idle while tickets wait."""
+
+    __tablename__ = "idle_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        sa.ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    triggered_at: Mapped[datetime] = mapped_column(
+        index=True, default=lambda: datetime.now(timezone.utc)
+    )
+    open_ticket_count: Mapped[int] = mapped_column(default=0)
+    oldest_ticket_wait_minutes: Mapped[Optional[int]] = mapped_column(default=None)
+
+    user: Mapped["User"] = orm.relationship("User")
+
+    def __repr__(self) -> str:
+        return (
+            f"<IdleEvent(id={self.id}, user_id={self.user_id}, "
+            f"open_ticket_count={self.open_ticket_count})>"
+        )
+
+
 class Skipped(Base):
     __tablename__ = "skipped"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

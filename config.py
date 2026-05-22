@@ -53,6 +53,14 @@ class Config:
         "RESET_PASSWORD_TOKEN_SALT", "password-reset-salt"
     )
 
+    # Admin monitoring / assistant attendance health settings.
+    # These are intentionally environment-driven so the lab can tune
+    # thresholds between terms without another code deploy.
+    ADMIN_MONITORING_ENABLED = _env_bool("ADMIN_MONITORING_ENABLED", "1")
+    IDLE_GRACE_MINUTES = int(os.environ.get("IDLE_GRACE_MINUTES", "5"))
+    CRITICAL_WAIT_MINUTES = int(os.environ.get("CRITICAL_WAIT_MINUTES", "10"))
+    CRITICAL_TICKET_COUNT = int(os.environ.get("CRITICAL_TICKET_COUNT", "4"))
+
     # In production (Elastic Beanstalk), DATABASE_URL must be set as an
     # environment variable pointing to an RDS instance.
     # The SQLite fallback is kept only for local development.

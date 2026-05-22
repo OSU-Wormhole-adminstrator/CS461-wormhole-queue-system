@@ -99,7 +99,8 @@ def create_app(testing=False):
     from app import models  # noqa: F401
     from app.archive_utils import register_archive_cli
     from app.queue_maintenance import register_queue_maintenance_cli
-    from app.routes import queue_events  # noqa: F401
+    from app.routes import queue_events
+    from app.routes.admin import admin_bp
     from app.routes.auth import auth_bp
     from app.routes.error import error_bp
     from app.routes.tickets import tickets_bp
@@ -108,6 +109,7 @@ def create_app(testing=False):
     app.register_blueprint(auth_bp)
     app.register_blueprint(views_bp)
     app.register_blueprint(tickets_bp)
+    app.register_blueprint(admin_bp)
     app.register_blueprint(error_bp)
     register_archive_cli(app)
     register_queue_maintenance_cli(app)
@@ -154,5 +156,6 @@ def create_app(testing=False):
     from app.routes.users import user_bp
 
     app.register_blueprint(user_bp)
+    queue_events.start_admin_monitoring_task(app)
 
     return app

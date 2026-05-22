@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Connect to the queue namespace
+    // Keep the queue socket for ticket count/refresh events.
     const socket = io('/queue');
+
+    // Open a separate assistant socket so admins can see this WA as present.
+    const assistantSocket = io('/assistant');
 
     socket.on('connect', function() {
         console.log('Connected to queue namespace (userpage)');
@@ -20,6 +23,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     socket.on('disconnect', function() {
         console.log('Disconnected from queue namespace (userpage)');
+    });
+
+    assistantSocket.on('connect', function() {
+        console.log('Connected to assistant presence namespace');
+    });
+
+    assistantSocket.on('connect_error', function(error) {
+        console.log('Assistant presence socket rejected or unavailable:', error.message);
     });
 
     function refreshUserPage() {

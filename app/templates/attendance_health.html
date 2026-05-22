@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block scripts %}
+    {{ super() }}
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
+{% block content %}
+    <div class="page monitoring-page">
+        <div class="section monitoring-hero">
+            <h2>
+                Attendance Health
+            </h2>
+            <p>
+                Live assistant presence and exception-based idle monitoring for the Wormhole queue.
+            </p>
+        </div>
+        <div class="monitoring-grid">
+            <section class="section monitoring-card monitoring-roster-card">
+                <div class="monitoring-card-header">
+                    <h3>
+                        Live Roster
+                    </h3>
+                    <p>
+                        Green means present or actively okay, yellow means connected while students are waiting, and gray means offline.
+                    </p>
+                </div>
+                <div id="live-roster" class="live-roster">
+                    <p class="monitoring-empty">
+                        Loading roster…
+                    </p>
+                </div>
+            </section>
+            <section class="section monitoring-card monitoring-log-card">
+                <div class="monitoring-card-header monitoring-card-header-row">
+                    <div>
+                        <h3>
+                            Attendance Health Log
+                        </h3>
+                        <p>
+                            This only records exceptions. A quiet log usually means the system is healthy.
+                        </p>
+                    </div>
+                    <a class="monitoring-export"
+                       href="{{ url_for('admin.export_sessions') }}">
+                        Export Raw Data
+                    </a>
+                </div>
+                <p id="idle-log-empty" class="monitoring-empty">
+                    No issues recorded.
+                </p>
+                <div class="monitoring-table-wrap">
+                    <table id="idle-log" class="monitoring-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Assistant
+                                </th>
+                                <th>
+                                    Time
+                                </th>
+                                <th>
+                                    Tickets Waiting
+                                </th>
+                                <th>
+                                    Oldest Wait (min)
+                                </th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
