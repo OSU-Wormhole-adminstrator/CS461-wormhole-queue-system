@@ -4,8 +4,10 @@ SocketIO events for real-time queue updates.
 Handles broadcasting ticket updates to connected clients.
 """
 
+from datetime import datetime, timezone
+
 from app import socketio
-from app.models import Ticket
+from app.models import Box, Ticket
 from app.time_utils import format_pacific, serialize_datetime
 
 
@@ -52,3 +54,32 @@ def broadcast_queue_refresh():
     Triggers the client to refetch the queue.
     """
     socketio.emit("queue_refresh", {}, namespace="/queue")
+
+
+@socketio.on("connect", namespace="/hardware")
+def handle_hardware_connect():
+    """Handle client connection to the hardware namespace."""
+    print("Client connected to /hardware")
+
+
+@socketio.on("disconnect", namespace="/hardware")
+def handle_hardware_disconnect():
+    """Handle client disconnect from the hardware namespace."""
+    print("Client disconnected from /hardware")
+
+
+def broadcast_hardware_update():
+    """
+    Broadcast the current hardware box list to all connected hardware clients.
+    """
+    try:
+        boxes = Box.query.order_by(Box.name).all()
+        most_recent = max((box.last_seen for box in boxes), default=datetime.now(timezone.utc))
+        payload = {
+            "boxes": [box.to_dict() for box in boxes],
+            "last_update": format_pacific(most_recent, "%Y-%m-%d %H:%M:%S %Z"),
+        }
+        socketio.emit("hardware_update", payload, namespace="/hardware")
+        print(f"Broadcasted hardware update for {len(boxes)} boxes")
+    except Exception as e:
+        print(f"Error broadcasting hardware update: {e}")

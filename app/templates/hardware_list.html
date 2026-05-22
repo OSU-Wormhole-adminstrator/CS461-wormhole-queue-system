@@ -8,70 +8,30 @@
             </h2>
             <table style="width:100%; align-self:center;">
                 <tr style="padding:15px;">
-                    <th>
-                        Name
-                    </th>
-                    <th>
-                        Battery Status
-                    </th>
-                    <th>
-                        Last Update
-                    </th>
+                    <th>Name</th>
+                    <th>Battery Status</th>
+                    <th>Last Update</th>
                 </tr>
-                {% for box in boxes %}
-                    {% if box.Battery_Status == 'Green' and box.Box_Name != 'Tyson' %}
+                <tbody id="hardware_rows">
+                    {% if boxes %}
+                        {% for box in boxes %}
+                            <tr data-box-name="{{ box.name }}">
+                                <td style="padding:8px; text-align:center;">{{ box.name }}</td>
+                                <td style="padding:8px; text-align:center; background-color: {% if box.status == 'Green' %}green{% elif box.status == 'Yellow' %}yellow{% elif box.status == 'Orange' %}orange{% else %}red{% endif %};">
+                                    {{ box.status }}
+                                </td>
+                                <td style="padding:8px; text-align:center;">{{ box.last_seen_local }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
                         <tr>
-                            <td style="padding:8px; text-align:center;">
-                                {{ box.Box_Name }}
-                            </td>
-                            <td bgcolor="green" style="padding:8px; text-align:center;">
-                                {{ box.Battery_Status }}
-                            </td>
-                            <td style="padding:8px; text-align:center;">
-                                {{ box.update_time }}
-                            </td>
-                        </tr>
-                    {% elif box.Battery_Status == 'Yellow' and box.Box_Name != 'Tyson' %}
-                        <tr>
-                            <td style="padding:8px; text-align:center;">
-                                {{ box.Box_Name }}
-                            </td>
-                            <td bgcolor="yellow" style="padding:8px; text-align:center;">
-                                {{ box.Battery_Status }}
-                            </td>
-                            <td style="padding:8px; text-align:center;">
-                                {{ box.update_time }}
-                            </td>
-                        </tr>
-                    {% elif box.Battery_Status == 'Orange' and box.Box_Name != 'Tyson' %}
-                        <tr>
-                            <td style="padding:8px; text-align:center;">
-                                {{ box.Box_Name }}
-                            </td>
-                            <td bgcolor="orange" style="padding:8px; text-align:center;">
-                                {{ box.Battery_Status }}
-                            </td>
-                            <td style="padding:8px; text-align:center;">
-                                {{ box.update_time }}
-                            </td>
-                        </tr>
-                    {% elif box.Box_Name != 'Tyson' %}
-                        <tr bgcolor="red">
-                            <td style="padding:8px; text-align:center;">
-                                {{ box.Box_Name }}
-                            </td>
-                            <td style="padding:8px; text-align:center;">
-                                {{ box.Battery_Status }}
-                            </td>
-                            <td style="padding:8px; text-align:center;">
-                                {{ box.update_time }}
-                            </td>
+                            <td colspan="3" style="padding:8px; text-align:center;">No hardware box status is available yet.</td>
                         </tr>
                     {% endif %}
-                {% endfor %}
+                </tbody>
             </table>
             <br>
-            <h4 style="text-align:center;">
+            <h4 style="text-align:center;" id="last_api_post">
                 Last API post: {{ update_time }}
             </h4>
             <br>
@@ -97,4 +57,9 @@
             <br>
         </div>
     </div>
+{% endblock %}
+
+{% block body_scripts %}
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/hardware_list.js') }}"></script>
 {% endblock %}

@@ -182,6 +182,31 @@ class Ticket(Base):
         db.session.commit()
 
 
+class Box(Base):
+    __tablename__ = "boxes"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(sa.String(100), unique=True, index=True)
+    status: Mapped[str] = mapped_column(sa.String(50), nullable=False)
+    last_seen: Mapped[datetime] = mapped_column(
+        sa.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+    def __repr__(self) -> str:
+        return f"<Box(id={self.id}, name={self.name}, status={self.status})>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "status": self.status,
+            "last_seen": serialize_datetime(self.last_seen),
+            "last_seen_local": format_pacific(
+                self.last_seen, "%Y-%m-%d %H:%M:%S %Z"
+            ),
+        }
+
+
 class Skipped(Base):
     __tablename__ = "skipped"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
