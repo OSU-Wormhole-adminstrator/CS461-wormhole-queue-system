@@ -817,6 +817,26 @@
 }
 
 /* Admin monitoring / attendance health */
+:root {
+    --monitoring-surface: #fff;
+    --monitoring-muted-surface: #f8fafc;
+    --monitoring-border: #d8e0ea;
+    --monitoring-heading: #10233b;
+    --monitoring-text: #334155;
+    --monitoring-secondary-text: #475569;
+    --monitoring-muted-text: #64748b;
+    --monitoring-row-border: #e2e8f0;
+    --monitoring-hover-surface: #e8f0f8;
+    --monitoring-status-active: #22c55e;
+    --monitoring-status-idle: #eab308;
+    --monitoring-status-offline: #94a3b8;
+    --monitoring-toast-bg: #fef2f2;
+    --monitoring-toast-border: #fecaca;
+    --monitoring-toast-text: #991b1b;
+    --monitoring-shadow: rgb(15 23 42 / 18%);
+    --monitoring-dot-ring: rgb(15 23 42 / 6%);
+}
+
 .monitoring-page {
     gap: 18px;
     padding: 18px;
@@ -826,19 +846,19 @@
     height: auto;
     min-height: 120px;
     padding: 24px;
-    background: #f8fafc;
-    border: 2px solid #d8e0ea;
+    background: var(--monitoring-muted-surface);
+    border: 2px solid var(--monitoring-border);
     border-radius: 18px;
 }
 
 .monitoring-hero h2 {
     margin-bottom: 8px;
-    color: #10233b;
+    color: var(--monitoring-heading);
 }
 
 .monitoring-hero p {
     line-height: 1.45;
-    color: #334155;
+    color: var(--monitoring-text);
 }
 
 .monitoring-grid {
@@ -852,8 +872,8 @@
     height: auto;
     min-height: 320px;
     padding: 20px;
-    background: #fff;
-    border: 2px solid #d8e0ea;
+    background: var(--monitoring-surface);
+    border: 2px solid var(--monitoring-border);
     border-radius: 18px;
 }
 
@@ -863,11 +883,11 @@
 
 .monitoring-card-header h3 {
     margin-bottom: 6px;
-    color: #10233b;
+    color: var(--monitoring-heading);
 }
 
 .monitoring-card-header p {
-    color: #475569;
+    color: var(--monitoring-secondary-text);
     line-height: 1.45;
 }
 
@@ -882,16 +902,16 @@
     display: inline-block;
     flex-shrink: 0;
     padding: 8px 12px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--monitoring-row-border);
     border-radius: 999px;
-    background: #f8fafc;
-    color: #10233b;
+    background: var(--monitoring-muted-surface);
+    color: var(--monitoring-heading);
     font-weight: 600;
     text-decoration: none;
 }
 
 .monitoring-export:hover {
-    background: #e8f0f8;
+    background: var(--monitoring-hover-surface);
 }
 
 .live-roster {
@@ -906,7 +926,7 @@
     align-items: center;
     gap: 10px;
     padding: 10px 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--monitoring-row-border);
     font-size: 0.95rem;
 }
 
@@ -915,37 +935,37 @@
     width: 11px;
     height: 11px;
     border-radius: 50%;
-    box-shadow: 0 0 0 3px rgb(15 23 42 / 6%);
+    box-shadow: 0 0 0 3px var(--monitoring-dot-ring);
 }
 
 .status-dot.active {
-    background-color: #22c55e;
+    background-color: var(--monitoring-status-active);
 }
 
 .status-dot.idle {
-    background-color: #eab308;
+    background-color: var(--monitoring-status-idle);
 }
 
 .status-dot.offline {
-    background-color: #94a3b8;
+    background-color: var(--monitoring-status-offline);
 }
 
 .assistant-name {
     min-width: 0;
     overflow: hidden;
-    color: #0f172a;
+    color: var(--monitoring-heading);
     font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .assistant-status {
-    color: #64748b;
+    color: var(--monitoring-muted-text);
     font-size: 0.85rem;
 }
 
 .monitoring-empty {
-    color: #64748b;
+    color: var(--monitoring-muted-text);
     font-style: italic;
     line-height: 1.45;
 }
@@ -963,14 +983,14 @@
 .monitoring-table th,
 .monitoring-table td {
     padding: 10px 12px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--monitoring-row-border);
     text-align: left;
     vertical-align: top;
 }
 
 .monitoring-table th {
-    background: #f8fafc;
-    color: #334155;
+    background: var(--monitoring-muted-surface);
+    color: var(--monitoring-text);
     font-size: 0.85rem;
     letter-spacing: 0.03em;
     text-transform: uppercase;
@@ -986,14 +1006,21 @@
     border-radius: 10px;
     font-size: 0.9rem;
     font-weight: 600;
-    box-shadow: 0 12px 30px rgb(15 23 42 / 18%);
+    box-shadow: 0 12px 30px var(--monitoring-shadow);
+    opacity: 1;
     animation: slide-in 0.2s ease;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.toast-exit {
+    opacity: 0;
+    transform: translateY(8px);
 }
 
 .toast-danger {
-    border: 1px solid #fecaca;
-    background: #fef2f2;
-    color: #991b1b;
+    border: 1px solid var(--monitoring-toast-border);
+    background: var(--monitoring-toast-bg);
+    color: var(--monitoring-toast-text);
 }
 
 @keyframes slide-in {

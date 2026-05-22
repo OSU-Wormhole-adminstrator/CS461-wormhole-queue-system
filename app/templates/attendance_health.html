@@ -1,9 +1,4 @@
 {% extends "base.html" %}
-{% block scripts %}
-    {{ super() }}
-    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
-{% endblock %}
 {% block content %}
     <div class="page monitoring-page">
         <div class="section monitoring-hero">
@@ -66,9 +61,15 @@
                                 </th>
                             </tr>
                         </thead>
+                        <tbody></tbody>
                     </table>
                 </div>
             </section>
         </div>
     </div>
+{% endblock %}
+{% block body_scripts %}
+    {{ super() }}
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 {% endblock %}

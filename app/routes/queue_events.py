@@ -8,6 +8,7 @@ The public queue still uses the /queue namespace. Assistant presence is tracked 
 
 from __future__ import annotations
 
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -50,6 +51,63 @@ def _connected_user_ids() -> set[int]:
     return {entry["user_id"] for entry in connected_assistants.values()}
 
 
+def _session_id_for_connected_user(user_id: int) -> int | None:
+    """Return an open AssistantSession id if this user already has a socket."""
+    for entry in connected_assistants.values():
+        if entry["user_id"] == user_id:
+            return entry["session_id"]
+    return None
+
+
+def _has_other_connection_for_session(
+    *, sid: str, user_id: int, session_id: int
+) -> bool:
+    """Return True when another socket still owns this attendance session."""
+    return any(
+        other_sid != sid
+        and entry["user_id"] == user_id
+        and entry["session_id"] == session_id
+        for other_sid, entry in connected_assistants.items()
+    )
+
+
+def _busy_wa_ids() -> set[int]:
+    """Return WA IDs that currently own an in-progress ticket in one query."""
+    return {
+        wa_id
+        for (wa_id,) in db.session.query(Ticket.wa_id)
+        .filter(Ticket.status == "in_progress", Ticket.wa_id.isnot(None))
+        .all()
+    }
+
+
+def _reopen_recent_session(user_id: int) -> int | None:
+    """Reuse a just-closed session so refreshes do not inflate CSV exports."""
+    grace_seconds = current_app.config.get(
+        "ASSISTANT_SESSION_REJOIN_GRACE_SECONDS", 90
+    )
+    if grace_seconds <= 0:
+        return None
+
+    cutoff = datetime.now(timezone.utc) - timedelta(seconds=grace_seconds)
+    recent_session = (
+        AssistantSession.query.filter(
+            AssistantSession.user_id == user_id,
+            AssistantSession.session_end.isnot(None),
+            AssistantSession.session_end >= cutoff,
+        )
+        .order_by(AssistantSession.session_end.desc())
+        .first()
+    )
+    if recent_session is None:
+        return None
+
+    recent_session.session_end = None
+    recent_session.duration_minutes = None
+    db.session.commit()
+    return recent_session.id
+
+
 @socketio.on("connect", namespace="/assistant")
 def handle_assistant_connect():
     """Track a non-admin assistant connection and open an attendance session."""
@@ -57,13 +115,19 @@ def handle_assistant_connect():
     if user is None or user.is_admin:
         return False
 
-    session_record = AssistantSession(user_id=user.id)
-    db.session.add(session_record)
-    db.session.commit()
+    session_id = _session_id_for_connected_user(user.id)
+    if session_id is None:
+        session_id = _reopen_recent_session(user.id)
+
+    if session_id is None:
+        session_record = AssistantSession(user_id=user.id)
+        db.session.add(session_record)
+        db.session.commit()
+        session_id = session_record.id
 
     connected_assistants[request.sid] = {
         "user_id": user.id,
-        "session_id": session_record.id,
+        "session_id": session_id,
     }
     socketio.emit("roster_update", build_roster(), namespace="/admin")
     return None
@@ -76,14 +140,19 @@ def handle_assistant_disconnect():
     if not presence:
         return
 
-    session_record = db.session.get(AssistantSession, presence["session_id"])
-    if session_record and session_record.session_end is None:
-        session_end = datetime.now(timezone.utc)
-        session_start = ensure_aware_utc(session_record.session_start)
-        duration_seconds = (session_end - session_start).total_seconds()
-        session_record.session_end = session_end
-        session_record.duration_minutes = max(0, int(duration_seconds // 60))
-        db.session.commit()
+    if not _has_other_connection_for_session(
+        sid=request.sid,
+        user_id=presence["user_id"],
+        session_id=presence["session_id"],
+    ):
+        session_record = db.session.get(AssistantSession, presence["session_id"])
+        if session_record and session_record.session_end is None:
+            session_end = datetime.now(timezone.utc)
+            session_start = ensure_aware_utc(session_record.session_start)
+            duration_seconds = (session_end - session_start).total_seconds()
+            session_record.session_end = session_end
+            session_record.duration_minutes = max(0, int(duration_seconds // 60))
+            db.session.commit()
 
     socketio.emit("roster_update", build_roster(), namespace="/admin")
 
@@ -129,12 +198,12 @@ def build_roster() -> list[dict[str, Any]]:
         .all()
     )
 
+    busy_wa_ids = _busy_wa_ids()
+
     roster = []
     for user in assistants:
         connected = user.id in active_wa_ids
-        has_active_ticket = (
-            Ticket.query.filter_by(wa_id=user.id, status="in_progress").count() > 0
-        )
+        has_active_ticket = user.id in busy_wa_ids
 
         if not connected:
             status = "offline"
@@ -159,14 +228,8 @@ def build_roster() -> list[dict[str, Any]]:
 
 def _idle_connected_assistant_ids() -> list[int]:
     """Return connected assistant IDs that do not have an in-progress ticket."""
-    idle_user_ids = []
-    for user_id in _connected_user_ids():
-        has_active_ticket = (
-            Ticket.query.filter_by(wa_id=user_id, status="in_progress").count() > 0
-        )
-        if not has_active_ticket:
-            idle_user_ids.append(user_id)
-    return idle_user_ids
+    busy_wa_ids = _busy_wa_ids()
+    return [user_id for user_id in _connected_user_ids() if user_id not in busy_wa_ids]
 
 
 def _write_idle_events(
@@ -209,8 +272,12 @@ def run_idle_check_once() -> None:
         Ticket.created_at < stale_cutoff,
     ).count()
 
-    if stale_ticket_count == 0 or not connected_assistants:
-        socketio.emit("roster_update", build_roster(), namespace="/admin")
+    if stale_ticket_count == 0:
+        if connected_assistants:
+            socketio.emit("roster_update", build_roster(), namespace="/admin")
+        return
+
+    if not connected_assistants:
         return
 
     idle_user_ids = _idle_connected_assistant_ids()
@@ -265,6 +332,8 @@ def start_admin_monitoring_task(app) -> None:
     if app.config.get("TESTING"):
         return
     if not app.config.get("ADMIN_MONITORING_ENABLED", True):
+        return
+    if app.debug and os.environ.get("WERKZEUG_RUN_MAIN") != "true":
         return
 
     _monitoring_task_started = True

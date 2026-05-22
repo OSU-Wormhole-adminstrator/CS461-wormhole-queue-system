@@ -1,6 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     const rosterContainer = document.getElementById('live-roster');
-    const idleLogBody = document.querySelector('#idle-log tbody');
+    const idleLogTable = document.getElementById('idle-log');
+    let idleLogBody = document.querySelector('#idle-log tbody');
+
+    // Defensive fallback: the template should include a tbody, but creating one
+    // here prevents a silent empty log if the markup regresses later.
+    if (!idleLogBody && idleLogTable) {
+        idleLogBody = document.createElement('tbody');
+        idleLogTable.appendChild(idleLogBody);
+    }
 
     if (rosterContainer) {
         const socket = io('/admin');
@@ -71,7 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
         toast.className = `toast toast-${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 8000);
+
+        setTimeout(() => toast.classList.add('toast-exit'), 7600);
+        setTimeout(() => toast.remove(), 8200);
     }
 
     function formatStatus(status) {

@@ -60,6 +60,9 @@ class Config:
     IDLE_GRACE_MINUTES = int(os.environ.get("IDLE_GRACE_MINUTES", "5"))
     CRITICAL_WAIT_MINUTES = int(os.environ.get("CRITICAL_WAIT_MINUTES", "10"))
     CRITICAL_TICKET_COUNT = int(os.environ.get("CRITICAL_TICKET_COUNT", "4"))
+    ASSISTANT_SESSION_REJOIN_GRACE_SECONDS = int(
+        os.environ.get("ASSISTANT_SESSION_REJOIN_GRACE_SECONDS", "90")
+    )
 
     # In production (Elastic Beanstalk), DATABASE_URL must be set as an
     # environment variable pointing to an RDS instance.
