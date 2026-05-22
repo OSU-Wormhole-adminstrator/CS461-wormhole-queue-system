@@ -201,9 +201,7 @@ class Box(Base):
             "name": self.name,
             "status": self.status,
             "last_seen": serialize_datetime(self.last_seen),
-            "last_seen_local": format_pacific(
-                self.last_seen, "%Y-%m-%d %H:%M:%S %Z"
-            ),
+            "last_seen_local": format_pacific(self.last_seen, "%Y-%m-%d %H:%M:%S %Z"),
         }
 
 

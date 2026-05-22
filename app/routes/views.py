@@ -475,7 +475,10 @@ def hardware_api():
             boxes=[box.to_dict() for box in boxes],
             last_update=(
                 format_pacific(
-                    max((box.last_seen for box in boxes), default=datetime.now(timezone.utc)),
+                    max(
+                        (box.last_seen for box in boxes),
+                        default=datetime.now(timezone.utc),
+                    ),
                     "%Y-%m-%d %H:%M:%S %Z",
                 )
                 if boxes

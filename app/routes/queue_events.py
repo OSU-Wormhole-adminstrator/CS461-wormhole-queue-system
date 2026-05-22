@@ -74,7 +74,9 @@ def broadcast_hardware_update():
     """
     try:
         boxes = Box.query.order_by(Box.name).all()
-        most_recent = max((box.last_seen for box in boxes), default=datetime.now(timezone.utc))
+        most_recent = max(
+            (box.last_seen for box in boxes), default=datetime.now(timezone.utc)
+        )
         payload = {
             "boxes": [box.to_dict() for box in boxes],
             "last_update": format_pacific(most_recent, "%Y-%m-%d %H:%M:%S %Z"),
