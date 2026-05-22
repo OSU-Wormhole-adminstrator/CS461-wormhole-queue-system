@@ -18,7 +18,6 @@
                             <tr data-box-name="{{ box.name }}">
                                 <td style="padding:8px; text-align:center;">{{ box.name }}</td>
                                 <td style="padding:8px; text-align:center; background-color: {%- if box.status == 'Green' -%}green{%- elif box.status == 'Yellow' -%}yellow{%- elif box.status == 'Orange' -%}orange{%- else -%}red{%- endif -%};"></td>
-                                </td>
                                 <td style="padding:8px; text-align:center;">{{ box.last_seen_local }}</td>
                             </tr>
                         {% endfor %}
