@@ -210,3 +210,4 @@ __marimo__/
 app.db
 *.pem
 app/data/archives/wormhole_archive_2026-05-16_to_2026-05-17.csv
+/app/data/archives
