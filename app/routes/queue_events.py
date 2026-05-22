@@ -23,7 +23,7 @@ _monitoring_task_started = False
 
 
 @socketio.on("connect", namespace="/queue")
-def handle_queue_connect():
+def handle_queue_connect(auth=None):
     """Handle client connection to queue namespace."""
     print("Client connected to /queue")
 
@@ -109,7 +109,7 @@ def _reopen_recent_session(user_id: int) -> int | None:
 
 
 @socketio.on("connect", namespace="/assistant")
-def handle_assistant_connect():
+def handle_assistant_connect(auth=None):
     """Track a non-admin assistant connection and open an attendance session."""
     user = _session_user()
     if user is None or user.is_admin:
@@ -158,7 +158,7 @@ def handle_assistant_disconnect():
 
 
 @socketio.on("connect", namespace="/admin")
-def handle_admin_connect():
+def handle_admin_connect(auth=None):
     """Reject non-admin SocketIO clients from the admin monitoring namespace."""
     user = _session_user()
     if user is None or not user.is_admin:
