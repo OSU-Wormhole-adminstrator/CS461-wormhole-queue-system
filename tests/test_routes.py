@@ -611,6 +611,40 @@ def test_download_old_users_csv_rejects_non_admin(test_client):
     assert response.get_json() == {"error": "Admin access required"}
 
 
+def test_user_list_shows_admin_status_column(test_client):
+    """User list page should show admin status for each listed user."""
+    admin = User(
+        username="admin_user_list_status", email="adminstatus@test.com", is_admin=True
+    )
+    admin.set_password("pass")
+
+    non_admin = User(
+        username="regular_user_list_status",
+        email="regularstatus@test.com",
+        name="Regular Status",
+        is_admin=False,
+        is_active=True,
+    )
+    non_admin.set_password("pass")
+
+    db.session.add_all([admin, non_admin])
+    db.session.commit()
+
+    with test_client.session_transaction() as sess:
+        sess["user_id"] = admin.id
+        sess["is_admin"] = True
+
+    response = test_client.get("/user_list")
+    assert response.status_code == 200
+
+    html = response.data.decode("utf-8")
+    assert "Admin" in html
+    assert "admin_user_list_status" in html
+    assert "Regular Status" in html
+    assert "Yes" in html
+    assert "No" in html
+
+
 def test_download_current_users_csv_sanitizes_formula_cells(test_client):
     """CSV export should neutralize spreadsheet formula-leading values."""
     admin = User(
