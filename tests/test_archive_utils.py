@@ -20,8 +20,8 @@ def test_archive_weekly_cli_appends_previous_week_once(test_app):
     db.session.add(assistant)
     db.session.commit()
 
-    inside_week = Ticket(
-        student_name="Inside Week",
+    newer_inside_week = Ticket(
+        student_name="Newer Inside Week",
         table="T1",
         physics_course="PH 211",
         status="closed",
@@ -29,17 +29,37 @@ def test_archive_weekly_cli_appends_previous_week_once(test_app):
         wa_id=assistant.id,
         number_of_students=2,
     )
-    inside_week.created_at = datetime(2026, 4, 20, 10, 0, tzinfo=pacific).astimezone(
+    newer_inside_week.created_at = datetime(
+        2026, 4, 20, 10, 0, tzinfo=pacific
+    ).astimezone(
         timezone.utc
     )
-    inside_week.closed_at = datetime(2026, 4, 20, 12, 0, tzinfo=pacific).astimezone(
+    newer_inside_week.closed_at = datetime(
+        2026, 4, 20, 12, 0, tzinfo=pacific
+    ).astimezone(
         timezone.utc
     )
 
-    before_week = Ticket(
-        student_name="Before Week",
+    older_inside_week = Ticket(
+        student_name="Older Inside Week",
         table="T2",
         physics_course="PH 212",
+        status="closed",
+        closed_reason="helped",
+        wa_id=assistant.id,
+        number_of_students=1,
+    )
+    older_inside_week.created_at = datetime(
+        2026, 4, 20, 9, 0, tzinfo=pacific
+    ).astimezone(timezone.utc)
+    older_inside_week.closed_at = datetime(
+        2026, 4, 20, 11, 0, tzinfo=pacific
+    ).astimezone(timezone.utc)
+
+    before_week = Ticket(
+        student_name="Before Week",
+        table="T3",
+        physics_course="PH 213",
         status="closed",
         closed_reason="helped",
     )
@@ -64,7 +84,9 @@ def test_archive_weekly_cli_appends_previous_week_once(test_app):
         2026, 4, 25, 0, 0, tzinfo=pacific
     ).astimezone(timezone.utc)
 
-    db.session.add_all([inside_week, before_week, next_week_boundary])
+    db.session.add_all(
+        [newer_inside_week, older_inside_week, before_week, next_week_boundary]
+    )
     db.session.commit()
 
     archive_filename = f"wormhole_archive_weekly_cli_{uuid4().hex}.csv"
@@ -82,17 +104,19 @@ def test_archive_weekly_cli_appends_previous_week_once(test_app):
             ]
         )
         assert first_run.exit_code == 0
-        assert "1 row(s) appended" in first_run.output
+        assert "2 row(s) appended" in first_run.output
         assert archive_path.exists()
 
         with archive_path.open("r", encoding="utf-8", newline="") as archive_file:
             rows = list(csv.DictReader(archive_file))
 
-        assert len(rows) == 1
-        assert rows[0]["Student Name"] == "Inside Week"
+        assert len(rows) == 2
+        assert rows[0]["Student Name"] == "Older Inside Week"
+        assert rows[1]["Student Name"] == "Newer Inside Week"
+        assert int(rows[0]["Ticket ID"]) > int(rows[1]["Ticket ID"])
         assert rows[0]["Status"] == "helped"
-        assert rows[0]["Created At"] == "2026-04-20 10:00:00"
-        assert rows[0]["Closed At"] == "2026-04-20 12:00:00"
+        assert rows[0]["Created At"] == "2026-04-20 09:00:00"
+        assert rows[0]["Closed At"] == "2026-04-20 11:00:00"
         assert rows[0]["Assistant Name"] == "'=Weekly Helper"
 
         second_run = runner.invoke(
@@ -106,12 +130,12 @@ def test_archive_weekly_cli_appends_previous_week_once(test_app):
         )
         assert second_run.exit_code == 0
         assert "0 row(s) appended" in second_run.output
-        assert "1 duplicate row(s) skipped" in second_run.output
+        assert "2 duplicate row(s) skipped" in second_run.output
 
         with archive_path.open("r", encoding="utf-8", newline="") as archive_file:
             rows = list(csv.DictReader(archive_file))
 
-        assert len(rows) == 1
+        assert len(rows) == 2
     finally:
         if archive_path.exists():
             archive_path.unlink()
