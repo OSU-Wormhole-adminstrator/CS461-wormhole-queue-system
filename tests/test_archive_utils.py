@@ -31,14 +31,10 @@ def test_archive_weekly_cli_appends_previous_week_once(test_app):
     )
     newer_inside_week.created_at = datetime(
         2026, 4, 20, 10, 0, tzinfo=pacific
-    ).astimezone(
-        timezone.utc
-    )
+    ).astimezone(timezone.utc)
     newer_inside_week.closed_at = datetime(
         2026, 4, 20, 12, 0, tzinfo=pacific
-    ).astimezone(
-        timezone.utc
-    )
+    ).astimezone(timezone.utc)
 
     older_inside_week = Ticket(
         student_name="Older Inside Week",
