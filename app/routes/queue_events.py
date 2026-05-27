@@ -6,6 +6,8 @@ Handles broadcasting ticket updates to connected clients.
 
 from datetime import datetime, timezone
 
+from flask import request
+
 from app import socketio
 from app.models import Box, Ticket
 from app.time_utils import format_pacific, serialize_datetime
@@ -60,6 +62,18 @@ def broadcast_queue_refresh():
 def handle_hardware_connect():
     """Handle client connection to the hardware namespace."""
     print("Client connected to /hardware")
+    # Send the current hardware state immediately to the connecting client
+    try:
+        boxes = Box.query.order_by(Box.name).all()
+        most_recent = max((box.last_seen for box in boxes), default=datetime.now(timezone.utc))
+        payload = {
+            "boxes": [box.to_dict() for box in boxes],
+            "last_update": format_pacific(most_recent, "%Y-%m-%d %H:%M:%S %Z"),
+        }
+        # Emit only to the connecting client
+        socketio.emit("hardware_update", payload, namespace="/hardware", room=request.sid)
+    except Exception as e:
+        print(f"Error sending initial hardware state: {e}")
 
 
 @socketio.on("disconnect", namespace="/hardware")
