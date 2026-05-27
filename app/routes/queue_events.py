@@ -65,13 +65,17 @@ def handle_hardware_connect():
     # Send the current hardware state immediately to the connecting client
     try:
         boxes = Box.query.order_by(Box.name).all()
-        most_recent = max((box.last_seen for box in boxes), default=datetime.now(timezone.utc))
+        most_recent = max(
+            (box.last_seen for box in boxes), default=datetime.now(timezone.utc)
+        )
         payload = {
             "boxes": [box.to_dict() for box in boxes],
             "last_update": format_pacific(most_recent, "%Y-%m-%d %H:%M:%S %Z"),
         }
         # Emit only to the connecting client
-        socketio.emit("hardware_update", payload, namespace="/hardware", room=request.sid)
+        socketio.emit(
+            "hardware_update", payload, namespace="/hardware", room=request.sid
+        )
     except Exception as e:
         print(f"Error sending initial hardware state: {e}")
 
