@@ -197,10 +197,48 @@
                                     of the users will be created and there will be a message showing if any users were not created successfully.
                                 </p>
                                 <h3>
+                                    Managing Users
+                                </h3>
+                                <p>
+                                    To manage users, navigate to the "WA list" page from the link in the "profile" page. This page shows a list of all the users that have accounts. 
+                                    You can see their name, email, ONID, and whether they are an administrator and edit their information. You can also delete users from this page by clicking the user's name
+                                     and then typing in "DELETE" in the text box on the right side of the screen. Keep in mind, this action is irreversible and will delete all information associated with that user.
+                                     There is also an option to make users inactive, meaning their accounts will still exist, but they will not be able to login or pick up tickets. This 
+                                     is useful if an assistant takes a break from working with the wormhole and will be returning later. You can make a user active again by going to this same page and updating their status.
+                                </p>
+                                <h3>
                                     Navigating the Queue
                                 </h3>
                                 <p>
-                                    
+                                    There are multiple features to be aware of on the queue page. First, you can click on any tickets to view some of the information.
+                                     This includes being able to change how tickets were closed if necessary. Second, you can flush the queue using the "flush queue" button. 
+                                     This automatically happens every night at midnight.
+                                     It will move all open and in progress tickets to the closed tickets section and mark them as "flushed". This is useful to flush the 
+                                     queue of any old tickets that are outdated and assistants forgot to close. Finally, you can clear the queue using the "clear queue" button.
+                                     Keep in mind, this deletes all tickets in the database and they will not be recoverable, so use this with extreme caution. You will also 
+                                     be prompted by a pop-up to confirm that you want to do this. Make sure to create an archive of the data before clearing the queue. In addition
+                                     to clearing all the tickets, it resets the ticket count back to 1.
+                                </p>
+                                <h3>
+                                    Archive Management
+                                </h3>
+                                <p>
+                                    The archive page provides a way to download past ticket data. Select a date range and click the "create archive" button to 
+                                    get a CSV file with all the tickets in that date range. This is useful to create backups of the data before clearing the queue
+                                    and to also have a record of past tickets. At the end of each week, an archive will automatically be created and updated. It is called 
+                                    "wormhole_archive_all" and it contains all tickets since the last time it was deleted. No archives will be deleted automatically, so 
+                                    make sure to delete this at the end of each term if you want a fresh archive for the each term.
+                                </p>
+                                <h3>
+                                    Editing the Home Page
+                                </h3>
+                                <p>
+                                    There is a text editor available to edit the content of the home page. It allows administrators to add important 
+                                    announcements and information for students and assistants to see when they navigate to the home page. The banner appears 
+                                    at the top of the home page, just below "Physics Collaboration and Help Center". Additionally, you can provide a note about 
+                                    the wormhole hours, and notes about closures, and also add holiday hours. Lastly, if there is a new assistant schedule, update 
+                                    the link on the edit website page to show the most up to date schedule. This is only necessary if the schedule link changes. 
+                                    Make sure to click the "Save Website Changes" button after making any changes to save the changes and have them appear on the home page.
                                 </p>
                             </section>
                         {% endif %}
