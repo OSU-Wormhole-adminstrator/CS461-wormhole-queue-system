@@ -68,10 +68,10 @@
                                 Welcome to the Wormhole Queue System wiki! This guide will help you get up and running with our queue management platform.
                             </p>
                             <h3>
-                                Creating Your Account
+                                Creating Your Account (if you are a Wormhole Assistant/Administrator)
                             </h3>
                             <p>
-                                To get started, create an account by hovering over the "User" button in the navigation bar. A dropdown will appear, click "Log In". Provide your email address and password.
+                                To log in, hover over the "User" button in the navigation bar. A dropdown will appear, click "Log In". Provide your ONID and password.
                             </p>
                         </section>
                         <!-- Student Guide Section -->
@@ -104,6 +104,12 @@
                                 The Home page provides an overview of the Wormhole, including quick links to key features and resources. It shows the schedule for the Wormhole as well as the breakdown of wormhole assistant who will be available.
                             </p>
                             <h3>
+                                Submit Request
+                            </h3>
+                            <p>
+                                The Submit Request page allows students to enter their information and submit a help request.
+                            </p>
+                            <h3>
                                 Viewing the Live Queue
                             </h3>
                             <p>
@@ -130,16 +136,45 @@
                                     Wormhole Assistants
                                 </h2>
                                 <h3>
-                                    Managing the Queue
+                                    Picking up and Resolving Tickets
                                 </h3>
                                 <p>
-                                    After signing in, open the Queue page from the User menu to view live requests. Assistants can claim tickets, move students into in-progress status, and close tickets with an appropriate reason when help is complete.
+                                    To get a ticket, navigate to the "profile" page in the dropdown menu under "User".
+                                    Once on the profile page, press the "Get next request" button. This will assign you the next ticket in the queue.
+                                    If there are no tickets in the queue, it will notify you that there are no tickets to pick up.\n
+                                    After picking up a ticket, you will be shown the ticket information and have a few options to close the ticket.
+                                    You can select "helped" if you have successfully helped the student and make sure to provide the number of students helped.
+                                    Other options include "duplicate", "no show", and "skip". If you select "skip", the ticket will go back into the queue
+                                    and you will be able to pick up the next ticket. The next assistant to pick up a ticket will be able to pick up the ticket
+                                    that was skipped, and you will not be able to pick it back up.
                                 </p>
                                 <h3>
-                                    Student Support Workflow
+                                    Viewing Button Box Battery Levels
                                 </h3>
                                 <p>
-                                    Work tickets in arrival order whenever possible, communicate expected wait times, and ensure each closed ticket includes an accurate outcome so queue history remains useful.
+                                    To view the battery levels of the button boxes, navigate to the "hardware status" page in the dropdown menu under "User".
+                                    Green means the battery is charged, yellow means the box still has enough battery to work, orange means charge the battery,
+                                     and red means the box is off or out of battery.
+                                </p>
+                                <h3>
+                                    Changing Password
+                                </h3>
+                                <p>
+                                    To change your password, there is a "change password" option on the "profile" page. You will need to know your username/ONID and
+                                     and your current password in order to change it. If you have forgotten your password, you will need to follow the steps under the "Forgot Password" section.
+                                </p>
+                                <h3>
+                                    Forgot Password
+                                </h3>
+                                <p>
+                                    If you forgot your password, you will need to log out and then click the "forgot password" link on the login page. You will be prompted
+                                     to enter your email address. An email will be sent to you with instructions on how to reset your password.
+                                </p>
+                                <h3>
+                                    Contact Administators
+                                </h3>
+                                <p>
+                                    If you have any questions or issues, please contact the administrators at wormhole.physics@oregonstate.edu
                                 </p>
                             </section>
                         {% endif %}
@@ -150,16 +185,22 @@
                                     Admin Features
                                 </h2>
                                 <h3>
-                                    User and Site Management
+                                    Register New Users
                                 </h3>
                                 <p>
-                                    Administrators can register and manage assistant accounts, control account activation, and update homepage content from the Edit Website page.
+                                    There are 2 options for registering users: registering a single user or registering multiple users via a CSV file.
+                                    To register a single user, navigate to the "register new user" page in the dropdown menu under "User" or click the link on the "profile" page.
+                                     You will need to provide the first name, last name, and ONID of the user you want to register and also check the box if the user needs to be 
+                                     an administrator. After registering the user, you will be able to see them in the list of users found in the "WA list" page.\n
+                                    To register multiple users, navigate to the "register users in batch" page from the link in the "profile" page. This page 
+                                    allows you to upload a CSV file with the first name, last name, and ONID of each user to register. After uploading the file, all 
+                                    of the users will be created and there will be a message showing if any users were not created successfully.
                                 </p>
                                 <h3>
-                                    Queue Operations and Records
+                                    Navigating the Queue
                                 </h3>
                                 <p>
-                                    Admin accounts can access archive tools, export historical ticket data, and perform maintenance actions such as flushing stale queue items when operationally required.
+                                    
                                 </p>
                             </section>
                         {% endif %}
