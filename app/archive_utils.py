@@ -274,10 +274,11 @@ def append_weekly_archive(
     """Append the latest completed week of tickets to the cumulative archive CSV."""
     start_utc, end_utc = previous_saturday_week_bounds(now)
     archive_path = archive_dir(root_path) / safe_archive_filename(filename)
-    tickets = sorted(
-        archive_ticket_query(start_utc, end_utc, include_end=False).yield_per(1000),
-        key=lambda ticket: ticket.id,
-        reverse=True,
+    tickets = (
+        archive_ticket_query(start_utc, end_utc, include_end=False)
+        .order_by(None)
+        .order_by(Ticket.id.desc())
+        .yield_per(1000)
     )
 
     existing_keys = _existing_archive_keys(archive_path)
