@@ -53,6 +53,19 @@ def test_hardware_api_creates_and_updates_box(test_client):
     assert box.status == "Green"
 
 
+def test_hardware_api_treats_naive_time_as_pacific(test_client):
+    """Naive hardware timestamps should be interpreted as Pacific local time."""
+    response = test_client.post(
+        "/api/hardware",
+        json={"name": "PacificBox", "status": "Yellow", "time": "2026-05-28 10:00:00"},
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["success"] is True
+    assert data["box"]["last_seen_local"] == "2026-05-28 10:00:00 PDT"
+
+
 def test_hardware_list_requires_login(test_client):
     """Verify the hardware list page is protected and requires login."""
     response = test_client.get("/hardware_list")

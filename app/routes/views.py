@@ -534,16 +534,24 @@ def _parse_hardware_timestamp(value):
         return datetime.fromtimestamp(value, timezone.utc)
 
     if isinstance(value, str):
+        # Support ISO 8601 strings with trailing Z (UTC designator).
+        normalized = value.strip()
+        if normalized.endswith("Z"):
+            normalized = f"{normalized[:-1]}+00:00"
+
         try:
-            parsed = datetime.fromisoformat(value)
+            parsed = datetime.fromisoformat(normalized)
         except ValueError:
             try:
-                parsed = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+                parsed = datetime.strptime(normalized, "%Y-%m-%d %H:%M:%S")
             except ValueError:
                 return datetime.now(timezone.utc)
+
         if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
-        return parsed
+            # Hardware clients often send local clock time without an offset.
+            # Interpret these values as Pacific local time before storing in UTC.
+            parsed = parsed.replace(tzinfo=PACIFIC_TZ)
+        return parsed.astimezone(timezone.utc)
 
     return datetime.now(timezone.utc)
 
