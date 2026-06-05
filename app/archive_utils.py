@@ -11,7 +11,7 @@ from typing import Iterable, Optional
 
 import click
 from flask import Flask
-from sqlalchemy import and_, func, or_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -124,7 +124,7 @@ def archive_ticket_query(
                 ),
             )
         )
-        .order_by(func.coalesce(Ticket.closed_at, Ticket.created_at).desc())
+        .order_by(Ticket.id.asc())
     )
 
 
@@ -277,7 +277,7 @@ def append_weekly_archive(
     tickets = (
         archive_ticket_query(start_utc, end_utc, include_end=False)
         .order_by(None)
-        .order_by(Ticket.id.desc())
+        .order_by(Ticket.id.asc())
         .yield_per(1000)
     )
 
