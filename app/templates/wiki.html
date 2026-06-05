@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
+    {% set is_logged_in = not current_user.is_anonymous %}
+    {% set is_admin = current_user.is_admin %}
     <div class="page wiki-page">
         <div class="section generic wiki-shell">
             <div class="wiki-container">
@@ -36,12 +38,16 @@
                                 <li>
                                     <a href="#website-overview" class="nav-link">Website Overview</a>
                                 </li>
-                                <li>
-                                    <a href="#wormhole-assistants" class="nav-link">Wormhole Assistants</a>
-                                </li>
-                                <li>
-                                    <a href="#admin-features" class="nav-link">Admin Features</a>
-                                </li>
+                                {% if is_logged_in %}
+                                    <li>
+                                        <a href="#wormhole-assistants" class="nav-link">Wormhole Assistants</a>
+                                    </li>
+                                {% endif %}
+                                {% if is_admin %}
+                                    <li>
+                                        <a href="#admin-features" class="nav-link">Admin Features</a>
+                                    </li>
+                                {% endif %}
                                 <li>
                                     <a href="#troubleshooting" class="nav-link">Troubleshooting</a>
                                 </li>
@@ -62,10 +68,10 @@
                                 Welcome to the Wormhole Queue System wiki! This guide will help you get up and running with our queue management platform.
                             </p>
                             <h3>
-                                Creating Your Account
+                                Creating Your Account (if you are a Wormhole Assistant/Administrator)
                             </h3>
                             <p>
-                                To get started, create an account by hovering over the "User" button in the navigation bar. A dropdown will appear, click "Log In". Provide your email address and password.
+                                To log in, hover over the "User" button in the navigation bar. A dropdown will appear, click "Log In". Provide your ONID and password.
                             </p>
                         </section>
                         <!-- Student Guide Section -->
@@ -98,6 +104,12 @@
                                 The Home page provides an overview of the Wormhole, including quick links to key features and resources. It shows the schedule for the Wormhole as well as the breakdown of wormhole assistant who will be available.
                             </p>
                             <h3>
+                                Submit Request
+                            </h3>
+                            <p>
+                                The Submit Request page allows students to enter their information and submit a help request.
+                            </p>
+                            <h3>
                                 Viewing the Live Queue
                             </h3>
                             <p>
@@ -117,17 +129,119 @@
                             </p>
                         </section>
                         <!-- Wormhole Assistants Section -->
-                        <section id="wormhole-assistants" class="wiki-section">
-                            <h3>
-                                Wormhole Assistants
-                            </h3>
-                        </section>
-                        <!-- Admin Features Section -->
-                        <section id="admin-features" class="wiki-section">
-                            <h2>
-                                Admin Features
-                            </h2>
-                        </section>
+                        {% if is_logged_in %}
+                            <!-- Wormhole Assistants Section -->
+                            <section id="wormhole-assistants" class="wiki-section">
+                                <h2>
+                                    Wormhole Assistants
+                                </h2>
+                                <h3>
+                                    Picking up and Resolving Tickets
+                                </h3>
+                                <p>
+                                    To get a ticket, navigate to the "profile" page in the dropdown menu under "User".
+                                    Once on the profile page, press the "Get next request" button. This will assign you the next ticket in the queue.
+                                    If there are no tickets in the queue, it will notify you that there are no tickets to pick up.
+                                    After picking up a ticket, you will be shown the ticket information and have a few options to close the ticket.
+                                    You can select "helped" if you have successfully helped the student and make sure to provide the number of students helped.
+                                    Other options include "duplicate", "no show", and "skip". If you select "skip", the ticket will go back into the queue
+                                    and you will be able to pick up the next ticket. The next assistant to pick up a ticket will be able to pick up the ticket
+                                    that was skipped, and you will not be able to pick it back up.
+                                </p>
+                                <h3>
+                                    Viewing Button Box Battery Levels
+                                </h3>
+                                <p>
+                                    To view the battery levels of the button boxes, navigate to the "hardware status" page in the dropdown menu under "User".
+                                    Green means the battery is charged, yellow means the box still has enough battery to work, orange means charge the battery,
+                                     and red means the box is off or out of battery.
+                                </p>
+                                <h3>
+                                    Changing Password
+                                </h3>
+                                <p>
+                                    To change your password, there is a "change password" option on the "profile" page. You will need to know your username/ONID and
+                                     your current password in order to change it. If you have forgotten your password, you will need to follow the steps under the "Forgot Password" section.
+                                </p>
+                                <h3>
+                                    Forgot Password
+                                </h3>
+                                <p>
+                                    If you forgot your password, you will need to log out and then click the "forgot password" link on the login page. You will be prompted
+                                     to enter your email address. An email will be sent to you with instructions on how to reset your password.
+                                </p>
+                                <h3>
+                                    Contact Administrators
+                                </h3>
+                                <p>
+                                    If you have any questions or issues, please contact the administrators at wormhole.physics@oregonstate.edu
+                                </p>
+                            </section>
+                        {% endif %}
+                        {% if is_admin %}
+                            <!-- Admin Features Section -->
+                            <section id="admin-features" class="wiki-section">
+                                <h2>
+                                    Admin Features
+                                </h2>
+                                <h3>
+                                    Register New Users
+                                </h3>
+                                <p>
+                                    There are 2 options for registering users: registering a single user or registering multiple users via a CSV file.
+                                    To register a single user, navigate to the "register new user" page in the dropdown menu under "User" or click the link on the "profile" page.
+                                     You will need to provide the first name, last name, and ONID of the user you want to register and also check the box if the user needs to be 
+                                     an administrator. After registering the user, you will be able to see them in the list of users found in the "WA list" page.
+                                    To register multiple users, navigate to the "register users in batch" page from the link in the "profile" page. This page 
+                                    allows you to upload a CSV file with the first name, last name, and ONID of each user to register. After uploading the file, all 
+                                    of the users will be created and there will be a message showing if any users were not created successfully.
+                                </p>
+                                <h3>
+                                    Managing Users
+                                </h3>
+                                <p>
+                                    To manage users, navigate to the "WA list" page from the link in the "profile" page. This page shows a list of all the users that have accounts. 
+                                    You can see their name, email, ONID, and whether they are an administrator and edit their information. You can also delete users from this page by clicking the user's name
+                                     and then typing in "DELETE" in the text box on the right side of the screen. Keep in mind, this action is irreversible and will delete all information associated with that user.
+                                     There is also an option to make users inactive, meaning their accounts will still exist, but they will not be able to log in or pick up tickets. This 
+                                     is useful if an assistant takes a break from working with the wormhole and will be returning later. You can make a user active again by going to this same page and updating their status.
+                                </p>
+                                <h3>
+                                    Navigating the Queue
+                                </h3>
+                                <p>
+                                    There are multiple features to be aware of on the queue page. First, you can click on any tickets to view some of the information.
+                                     This includes being able to change how tickets were closed if necessary. Second, you can flush the queue using the "flush queue" button. 
+                                     This automatically happens every night at midnight.
+                                     It will move all open and in progress tickets to the closed tickets section and mark them as "flushed". This is useful to flush the 
+                                     queue of any old tickets that are outdated and assistants forgot to close. Finally, you can clear the queue using the "clear queue" button.
+                                     Keep in mind, this deletes all tickets in the database and they will not be recoverable, so use this with extreme caution. You will also 
+                                     be prompted by a pop-up to confirm that you want to do this. Make sure to create an archive of the data before clearing the queue. In addition
+                                     to clearing all the tickets, it resets the ticket count back to 1.
+                                </p>
+                                <h3>
+                                    Archive Management
+                                </h3>
+                                <p>
+                                    The archive page provides a way to download past ticket data. Select a date range and click the "create archive" button to 
+                                    get a CSV file with all the tickets in that date range. This is useful to create backups of the data before clearing the queue
+                                    and to also have a record of past tickets. At the end of each week, an archive will automatically be created and updated. It is called 
+                                    "wormhole_archive_all" and it contains all tickets since the last time it was deleted. No archives will be deleted automatically, so 
+                                    make sure to delete this at the end of each term if you want a fresh archive for the each term.
+                                </p>
+                                <h3>
+                                    Editing the Home Page
+                                </h3>
+                                <p>
+                                    There is a text editor available to edit the content of the home page. It allows administrators to add important 
+                                    announcements and information for students and assistants to see when they navigate to the home page. The banner appears 
+                                    at the top of the home page, just below "Physics Collaboration and Help Center". Additionally, you can provide a note about 
+                                    the wormhole hours, and notes about closures, and also add holiday hours. Lastly, if there is a new assistant schedule, update 
+                                    the link on the edit website page to show the most up to date schedule. This is only necessary if the schedule link changes. 
+                                    Make sure to click the "Save Website Changes" button after making any changes to save the changes and have them appear on the home page.
+                                </p>
+                            </section>
+                        {% endif %}
                         <!-- Troubleshooting Section -->
                         <section id="troubleshooting" class="wiki-section">
                             <h2>
