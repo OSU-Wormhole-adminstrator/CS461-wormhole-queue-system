@@ -1,7 +1,7 @@
 # app/routes/views.py
 import csv
 import io
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.parse import urljoin, urlparse
@@ -12,6 +12,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -49,7 +50,7 @@ from app.forms import (
     SiteContentForm,
     TicketForm,
 )
-from app.models import Skipped, Ticket, User
+from app.models import Box, Skipped, Ticket, User
 from app.queue_maintenance import flush_open_tickets
 from app.site_content import (
     get_site_content,
@@ -308,6 +309,14 @@ def flush():
 
     count = flush_open_tickets(reason="Queue Flushed")
 
+    # broadcast refresh to queue clients
+    try:
+        from app.routes.queue_events import broadcast_queue_refresh
+
+        broadcast_queue_refresh()
+    except Exception:
+        pass
+
     flash(f"Queue flushed. {count} tickets closed.", "info")
     return redirect(url_for("views.queue"))
 
@@ -453,9 +462,98 @@ def dashboard():
 @views_bp.route("/hardware_list")
 @login_required
 def hardware_list():
-    # Placeholder for hardware list - will be populated with actual data
-    boxes = []
-    return render_template("hardware_list.html", boxes=boxes)
+    boxes = Box.query.order_by(Box.name).all()
+    if boxes:
+        latest_seen = max(box.last_seen for box in boxes)
+        update_time = format_pacific(latest_seen, "%Y-%m-%d %H:%M:%S %Z")
+    else:
+        update_time = "N/A"
+    return render_template(
+        "hardware_list.html",
+        boxes=boxes,
+        update_time=update_time,
+    )
+
+
+@views_bp.route("/api/hardware", methods=["GET", "POST"])
+def hardware_api():
+    if request.method == "GET":
+        boxes = Box.query.order_by(Box.name).all()
+        return jsonify(
+            boxes=[box.to_dict() for box in boxes],
+            last_update=(
+                format_pacific(
+                    max(
+                        (box.last_seen for box in boxes),
+                        default=datetime.now(timezone.utc),
+                    ),
+                    "%Y-%m-%d %H:%M:%S %Z",
+                )
+                if boxes
+                else "N/A"
+            ),
+        )
+
+    if not request.is_json:
+        return jsonify({"error": "JSON payload required."}), 400
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "JSON object expected."}), 400
+
+    name = data.get("name") or data.get("box_name")
+    status = data.get("status") or data.get("battery_status")
+    incoming_time = data.get("time")
+
+    if not name or not status:
+        return jsonify({"error": "Both 'name' and 'status' are required."}), 400
+
+    last_seen = _parse_hardware_timestamp(incoming_time)
+    box = Box.query.filter_by(name=name).one_or_none()
+    if box is None:
+        box = Box(name=name, status=status, last_seen=last_seen)
+        db.session.add(box)
+    else:
+        box.status = status
+        box.last_seen = last_seen
+
+    db.session.commit()
+
+    from app.routes.queue_events import broadcast_hardware_update
+
+    broadcast_hardware_update()
+
+    return jsonify({"success": True, "box": box.to_dict()})
+
+
+def _parse_hardware_timestamp(value):
+    if value is None:
+        return datetime.now(timezone.utc)
+
+    if isinstance(value, (int, float)):
+        return datetime.fromtimestamp(value, timezone.utc)
+
+    if isinstance(value, str):
+        # Support ISO 8601 strings with trailing Z (UTC designator).
+        normalized = value.strip()
+        if normalized.endswith("Z"):
+            normalized = f"{normalized[:-1]}+00:00"
+
+        try:
+            parsed = datetime.fromisoformat(normalized)
+        except ValueError:
+            try:
+                parsed = datetime.strptime(normalized, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                return datetime.now(timezone.utc)
+
+        if parsed.tzinfo is None:
+            # Hardware clients often send local clock time without an offset.
+            # Interpret these values as Pacific local time before storing in UTC.
+            parsed = parsed.replace(tzinfo=PACIFIC_TZ)
+        return parsed.astimezone(timezone.utc)
+
+    return datetime.now(timezone.utc)
 
 
 @views_bp.route("/logout")

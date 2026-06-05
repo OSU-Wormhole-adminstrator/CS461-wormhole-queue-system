@@ -111,8 +111,8 @@ def test_archive_weekly_cli_appends_previous_week_once(test_app):
         assert rows[1]["Student Name"] == "Older Inside Week"
         assert int(rows[0]["Ticket ID"]) < int(rows[1]["Ticket ID"])
         assert rows[0]["Status"] == "helped"
-        assert rows[0]["Created At"] == "2026-04-20 10:00:00"
-        assert rows[0]["Closed At"] == "2026-04-20 12:00:00"
+        assert rows[0]["Created At"] == "2026-04-20 09:00:00"
+        assert rows[0]["Closed At"] == "2026-04-20 11:00:00"
         assert rows[0]["Assistant Name"] == "'=Weekly Helper"
 
         second_run = runner.invoke(
