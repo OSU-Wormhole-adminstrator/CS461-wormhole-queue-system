@@ -11,7 +11,7 @@ from typing import Iterable, Optional
 
 import click
 from flask import Flask
-from sqlalchemy import and_, func, or_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.elements import ColumnElement
 
