@@ -46,12 +46,12 @@ class TicketForm(FlaskForm):
     phClass = SelectField(
         "Class",
         choices=[
-            ("Ph 211", "Ph 211"),
-            ("Ph 212", "Ph 212"),
-            ("Ph 213", "Ph 213"),
-            ("Ph 20x", "Ph 20x"),
+            ("211", "211"),
+            ("212", "212"),
+            ("213", "213"),
+            ("Ph 20x", "20x"),
             ("Ph 20x Ecampus", "Ph 20x Ecampus"),
-            ("Ph 21x Ecampus", "Ph 21x Ecampus"),
+            ("21x Ecampus", "21x Ecampus"),
         ],
         validators=[DataRequired()],
     )
