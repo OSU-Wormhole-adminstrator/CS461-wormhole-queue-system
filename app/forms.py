@@ -49,9 +49,9 @@ class TicketForm(FlaskForm):
             ("211", "211"),
             ("212", "212"),
             ("213", "213"),
-            ("20x", "20x"),
-            ("20x Ecampus", "20x Ecampus"),
-            ("21x Ecampus", "21x Ecampus"),
+            ("20X", "20X"),
+            ("20X Ecampus", "20X Ecampus"),
+            ("21X Ecampus", "21X Ecampus"),
         ],
         validators=[DataRequired()],
     )
