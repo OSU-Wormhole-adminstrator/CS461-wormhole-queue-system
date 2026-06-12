@@ -49,7 +49,7 @@ class TicketForm(FlaskForm):
             ("211", "211"),
             ("212", "212"),
             ("213", "213"),
-            ("Ph 20x", "Ph 20x"),
+            ("20X", "20X"),
             ("20X Ecampus", "20X Ecampus"),
             ("21X Ecampus", "21X Ecampus"),
         ],
