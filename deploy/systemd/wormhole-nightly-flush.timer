@@ -2,7 +2,7 @@
 Description=Run Wormhole nightly queue flush at midnight Pacific
 
 [Timer]
-OnCalendar=*-*-* 16:00:00
+OnCalendar=*-*-* 00:00:00
 Timezone=America/Los_Angeles
 Persistent=true
 Unit=wormhole-nightly-flush.service
