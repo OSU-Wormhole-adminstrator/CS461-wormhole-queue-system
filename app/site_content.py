@@ -9,15 +9,15 @@ from app.models import SiteContent
 
 DEFAULT_SITE_CONTENT: dict[str, str] = {
     "homepage_banner": "",
-    "schedule_announcement": "The Wormhole is open for collaboration",
+    "schedule_announcement": "The Wormhole is open for collaboration during regular library hours.",
     "schedule_hours": (
-        "Wormhole Assistants availability is shown in the schedule below."
+        "Wormhole Assistant availability is shown in the schedule below."
     ),
     "schedule_note": (
         "NOTE: The Wormhole may close at 4 PM on Mondays and Wednesdays "
         "for departmental colloquia."
     ),
-    "holiday_closures": "Assistants are unavailable on OSU holidays",
+    "holiday_closures": "Assistants are unavailable on OSU holidays.",
     "schedule_embed_url": (
         "https://docs.google.com/spreadsheets/d/e/"
         "2PACX-1vRcotW2LQyMMUHgBjvig-ZcHnybkT4_0XfiHDp-IVeqkX7VGh4vtr"
