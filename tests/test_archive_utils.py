@@ -55,7 +55,7 @@ def test_archive_weekly_cli_appends_previous_week_once(test_app):
     before_week = Ticket(
         student_name="Before Week",
         table="T3",
-        physics_course="PH 213",
+        physics_course="213",
         status="closed",
         closed_reason="helped",
     )
@@ -69,7 +69,7 @@ def test_archive_weekly_cli_appends_previous_week_once(test_app):
     next_week_boundary = Ticket(
         student_name="Next Week Boundary",
         table="T3",
-        physics_course="PH 213",
+        physics_course="213",
         status="closed",
         closed_reason="helped",
     )
@@ -143,7 +143,7 @@ def test_archive_weekly_cli_confines_filename_to_archive_directory(test_app):
     ticket = Ticket(
         student_name="Safe Filename",
         table="T1",
-        physics_course="PH 211",
+        physics_course="211",
         status="closed",
         closed_reason="helped",
         number_of_students=1,
