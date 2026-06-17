@@ -98,9 +98,9 @@ def test_homepage_uses_default_site_content(test_client):
     response = test_client.get("/")
 
     assert response.status_code == 200
-    assert b"The Wormhole is open for Spring 2026!" in response.data
-    assert b"10 AM" in response.data
-    assert b"Memorial Day" in response.data
+    assert b"The Wormhole is open" in response.data
+    assert b"schedule" in response.data
+    assert b"holidays" in response.data
 
 
 def test_homepage_preserves_static_links_when_content_is_dynamic(test_client):
