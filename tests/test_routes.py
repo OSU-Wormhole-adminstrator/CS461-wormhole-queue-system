@@ -120,7 +120,7 @@ def test_create_ticket_flash_reminds_to_join_zoom(test_client):
         "/createticket",
         data={
             "name": "Test Student",
-            "phClass": "Ph 211",
+            "phClass": "211",
             "location": "Zoom",
         },
         follow_redirects=True,
@@ -136,7 +136,7 @@ def test_create_ticket_flash_reminds_to_join_teams(test_client):
         "/createticket",
         data={
             "name": "Test Student",
-            "phClass": "Ph 211",
+            "phClass": "211",
             "location": "Teams",
         },
         follow_redirects=True,
@@ -301,10 +301,10 @@ def test_flush_route(test_client):
     admin.set_password("pass")
     db.session.add(admin)
 
-    t1 = Ticket(student_name="S1", table="T1", physics_course="Ph 211", status="live")
-    t2 = Ticket(student_name="S2", table="T2", physics_course="Ph 212", status="live")
+    t1 = Ticket(student_name="S1", table="T1", physics_course="211", status="live")
+    t2 = Ticket(student_name="S2", table="T2", physics_course="212", status="live")
     t3 = Ticket(
-        student_name="S3", table="T3", physics_course="Ph 213", status="in_progress"
+        student_name="S3", table="T3", physics_course="213", status="in_progress"
     )
     db.session.add_all([t1, t2, t3])
     db.session.commit()
@@ -351,8 +351,8 @@ def test_clear_queue_route_resets_ticket_index(test_client):
     admin.set_password("pass")
     db.session.add(admin)
 
-    t1 = Ticket(student_name="S1", table="T1", physics_course="Ph 211", status="live")
-    t2 = Ticket(student_name="S2", table="T2", physics_course="Ph 212", status="closed")
+    t1 = Ticket(student_name="S1", table="T1", physics_course="211", status="live")
+    t2 = Ticket(student_name="S2", table="T2", physics_course="212", status="closed")
     db.session.add_all([t1, t2])
     db.session.commit()
 
@@ -369,7 +369,7 @@ def test_clear_queue_route_resets_ticket_index(test_client):
     new_ticket = Ticket(
         student_name="AfterClear",
         table="T9",
-        physics_course="Ph 213",
+        physics_course="213",
         status="live",
     )
     db.session.add(new_ticket)
@@ -389,7 +389,7 @@ def test_export_archive(test_client):
     yesterday_local = datetime.now(pacific) - timedelta(days=1)
     closed_local = yesterday_local.replace(hour=12, minute=0, second=0, microsecond=0)
     t = Ticket(
-        student_name="ExportMe", table="T1", physics_course="Ph 211", status="closed"
+        student_name="ExportMe", table="T1", physics_course="211", status="closed"
     )
     t.closed_at = closed_local.astimezone(timezone.utc)
     db.session.add(t)
@@ -694,7 +694,7 @@ def test_pastticket_resolution(test_client):
     user.set_password("pass")
     db.session.add(user)
 
-    t = Ticket(student_name="Old", table="T1", physics_course="Ph 211", status="live")
+    t = Ticket(student_name="Old", table="T1", physics_course="211", status="live")
     db.session.add(t)
     db.session.commit()
 
@@ -725,7 +725,7 @@ def test_pastticket_forbidden_for_other_user(test_client):
     db.session.add_all([owner, other])
 
     t = Ticket(
-        student_name="Student", table="T2", physics_course="Ph 212", status="live"
+        student_name="Student", table="T2", physics_course="212", status="live"
     )
     db.session.add(t)
     db.session.commit()
@@ -748,7 +748,7 @@ def test_pastticket_admin_can_access_any_user(test_client):
     other.set_password("pass")
     db.session.add_all([admin, other])
 
-    t = Ticket(student_name="Old", table="T3", physics_course="Ph 213", status="live")
+    t = Ticket(student_name="Old", table="T3", physics_course="213", status="live")
     db.session.add(t)
     db.session.commit()
 
@@ -822,16 +822,16 @@ def test_register_error_keeps_form_values_and_shows_suggestion(test_client):
 def test_livequeuetickets_includes_in_progress_in_order(test_client):
     """Public live queue API should include both live and in-progress tickets in queue order."""
     t1 = Ticket(
-        student_name="First", table="T1", physics_course="Ph 211", status="live"
+        student_name="First", table="T1", physics_course="211", status="live"
     )
     t2 = Ticket(
         student_name="Second",
         table="T2",
-        physics_course="Ph 212",
+        physics_course="212",
         status="in_progress",
     )
     t3 = Ticket(
-        student_name="Third", table="T3", physics_course="Ph 213", status="live"
+        student_name="Third", table="T3", physics_course="213", status="live"
     )
     db.session.add_all([t1, t2, t3])
     db.session.commit()
@@ -857,7 +857,7 @@ def test_currentticket_displays_pacific_time(test_client):
     t = Ticket(
         student_name="Time Test",
         table="T7",
-        physics_course="Ph 211",
+        physics_course="211",
         status="in_progress",
         wa_id=user.id,
     )
@@ -884,7 +884,7 @@ def test_queue_closed_history_displays_pacific_opened_and_closed_times(test_clie
     t = Ticket(
         student_name="Queue Time Test",
         table="T11",
-        physics_course="Ph 211",
+        physics_course="211",
         status="closed",
         wa_id=user.id,
     )
@@ -920,7 +920,7 @@ def test_export_archive_uses_pacific_date_boundaries(test_client, test_app):
     t = Ticket(
         student_name="LateLocalTicket",
         table="T9",
-        physics_course="Ph 212",
+        physics_course="212",
         status="closed",
     )
     t.created_at = datetime(2026, 4, 2, 18, 15, 0, tzinfo=timezone.utc)
